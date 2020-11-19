@@ -59,7 +59,6 @@ Sampler.Plots = 'NLO'                                     # Should the plots be 
 
 
 DataSet       = Sampler.GetANNInput()
-assert 0 == 1
 #Neural Network Hyperparameters
 ANNSetupEven = DIClasses.DIANNSetup(LayerType,Epochs,SavePath+ModelName+'Even.h5',Batch,ModelName+'Even',Neurons,Dropout=Dropout,LearnRate=LearnRate,Optimizer=Optimizer,Regu=Regu)
 ANNSetupOdd  = DIClasses.DIANNSetup(LayerType,Epochs,SavePath+ModelName+'Odd.h5',Batch,ModelName+'Odd',Neurons,Dropout=Dropout,LearnRate=LearnRate,Optimizer=Optimizer,Regu=Regu)

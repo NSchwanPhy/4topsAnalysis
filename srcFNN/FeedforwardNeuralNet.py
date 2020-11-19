@@ -155,11 +155,11 @@ def FNN(ANNSetup, test, train):
     Roc = Histories()
     #Roc = RedHistory()
     if(lrate == None):
-        #Lcallbacks = [Roc]
-        Lcallbacks = []
+        Lcallbacks = [Roc]
+        #Lcallbacks = []
     else:
-        #Lcallbacks = [Roc,lrate]
-        Lcallbacks = [lrate]
+        Lcallbacks = [Roc,lrate]
+        #Lcallbacks = [lrate]
 
     model.summary()
     model.compile(optimizer=Opti, loss='binary_crossentropy', metrics=['accuracy'])
@@ -170,15 +170,15 @@ def FNN(ANNSetup, test, train):
     end = time.clock()
     print("The training took {} seconds".format(end-start))
 
-    # LAuc = Roc.TestAucs
-    # LTrainAuc = Roc.TrainAucs
-    # print("Best Test Auc {0:.4f} at Epoch {1}".format(max(LAuc),(LAuc.index(max(LAuc))+1))) #0:.4f
-    # print("Best Train Auc {0:.4f}".format(LTrainAuc[LAuc.index(max(LAuc))]))
+    LAuc = Roc.TestAucs
+    LTrainAuc = Roc.TrainAucs
+    print("Best Test Auc {0:.4f} at Epoch {1}".format(max(LAuc),(LAuc.index(max(LAuc))+1))) #0:.4f
+    print("Best Train Auc {0:.4f}".format(LTrainAuc[LAuc.index(max(LAuc))]))
 
-    # for i in range(len(LAuc)):
-    #     print("Auc at Epoch {0}: {1:.4f} Ov: {2:.3f}".format(i,LAuc[i],1-LAuc[i]/LTrainAuc[i]))
+    for i in range(len(LAuc)):
+        print("Auc at Epoch {0}: {1:.4f} Ov: {2:.3f}".format(i,LAuc[i],1-LAuc[i]/LTrainAuc[i]))
 
-    # model.save(ANNSetup.SavePath)
+    model.save(ANNSetup.SavePath)
 
     return model, Roc
 

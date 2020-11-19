@@ -38,7 +38,7 @@ def LSTMNN(ANNSetup, test, train, VarList):
     DenseNeurons = ANNSetup.Neurons[1]
     width = train.Events.shape[1]
     Seq = train.Events.shape[2]
-    model.add(LSTM(LSTMNeurons[0], input_shape=(width, Seq),kernel_regularizer=l2(ANNSetup.Regu), return_sequences=True))  # kernel_regularizer=l2(ANNSetup.Regu) 
+    model.add(LSTM(LSTMNeurons[0], input_shape=(width, Seq),kernel_regularizer=l1(ANNSetup.Regu), return_sequences=True))  # kernel_regularizer=l2(ANNSetup.Regu) 
     if(ANNSetup.Dropout[0] != 0):
         model.add(Dropout(ANNSetup.Dropout[0]))
     for i in range(1,len(LSTMNeurons)):

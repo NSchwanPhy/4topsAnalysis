@@ -49,11 +49,11 @@ def Init(VarKind,Samples,Cuts=True):
     else:
         Cuts = "nBTags_MV2c10_77>=2 && nJets>=6 && HT_all>500000 && (SSee_passECIDS==1 || SSem_passECIDS==1 || SSmm==1 || eee_Zveto==1 || eem_Zveto==1 || emm_Zveto==1 || mmm_Zveto==1)"
 
-    if(VarKind == 'FNN19'):
+    if(VarKind == 'FNN18'):
         listOfVariables = ['HT_jets_noleadjet', 'met_met', 'leading_jet_pT', 'leading_bjet_pT',
                             'lep_0_pt', 'lep_1_pt', 'lep_0_phi' , 'nJets', 'jet_sum_mv2c10_Continuous',
                             'deltaR_lb_max','deltaR_ll_min', 'deltaR_ll_max', 'deltaR_bb_min', 'deltaR_ll_sum',
-                            'deltaR_lb_min','deltaR_lj_min', 'jet_5_pt' ,'jet_1_pt','Evt_Channel']
+                            'deltaR_lb_min','deltaR_lj_min', 'jet_5_pt' ,'jet_1_pt',]
     elif(VarKind == 'FNN12'):
         listOfVariables = ['jet_sum_mv2c10_Continuous', 'lepton_0_Pt', 'met_met','deltaR_ll_min', 'jet_5_pt',
                             'deltaR_lb_max', 'HT_jets_noleadjet','jet_1_pt',
