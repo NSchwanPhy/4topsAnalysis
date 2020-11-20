@@ -1,0 +1,411 @@
+% !TeX root = thesis_guide.tex
+% chktex-file 1 chktex-file 21
+
+%==============================================================================
+\chapter{Useful packages}%
+\label{sec:package}
+%==============================================================================
+
+\LaTeX{} file: \url{./guide_package.tex}\\[1ex]
+\noindent
+\LaTeX{} has so many packages that it is often hard to find the
+correct or most useful ones. It is also not a good idea to just take
+one of your friend's theses and use his/her packages and conventions,
+as there is a steady and regular improvement in the packages
+available.
+
+This chapter lists some useful packages --- maybe also some that
+are not so commonly known. Here I only say what the package is used
+for. More detailed instructions on the usage can be found in the
+relevant chapters. I first list the packages used in this guide
+and then give a bit of information on other packages that may be useful.
+
+From all that I have read, \KOMAScript\index{KOMAScript@\KOMAScript}
+seems to be the way to go for the overall classes. I have therefore
+based the \Package{ubonn-thesis} style on this. You replace
+\Package{article}, \Package{report} and \Package{book} by
+\Package{scrartcl}, \Package{scrreprt} and \Package{scrbook}. For
+theses I think it is best to use \Package{scrbook}, as this class also
+includes the commands \Macro{frontmatter}, \Macro{mainmatter} and
+\Macro{backmatter} that set up page numbering etc.\ appropriately.
+
+Please try to use \KOMAScript\ version 3.0 or higher. The
+\Macro{KOMAoptions} command is not available in earlier versions, so
+you would have to modify the style file.
+
+
+%------------------------------------------------------------------------------
+\section{Layout and language}%
+\label{sec:package:layout}
+%------------------------------------------------------------------------------
+
+There are quite a few packages related to layout and also to handling
+of text input and languages. As far as layout goes, \KOMAScript{} has
+many options with which you can already do a lot. You can either use
+the built-in \Package{typearea} package to do the page layout, which
+also includes nice options to allow for the binding, or use the
+\Package{geometry} package which also contains more than enough
+options. In the past I have used \Package{geometry}, but I also see no
+reason not to just use \Package{typearea}. Note that you should not
+include the \Package{typearea} package, you should simply set the
+options using \Macro{KOMAoptions}.
+Generally, all you need to do is specify \Option{DIV} (set by default to 12),
+which divides the page into a number of divisions and
+\Option{BCOR} (set by default to \SI{5}{\mm}),
+which leaves some space for the binding.
+The packages are listed in \cref{tab:package:layout}.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lp{0.8\textwidth}}
+    \toprule
+    \Package{geometry} & Provides simple options for page layout such
+    as \Option{scale=0.75} to cover \SI{75}{\%} of the page.\\
+    \Package{typearea} & Does much the same, but here you specify how
+    many elements to split the page into, e.g.\ \Option{DIV=12}.
+    You do not have to include
+    this package explicitly if you use \KOMAScript.\\
+    \Package{setspace} & Useful options to change spacing.\\
+    \Package{fontenc} & The encoding used for fonts. Recommended is
+    \Option{T1}, which is given as an option.\\
+    \Package{inputenc} & Use either \Option{utf8} or \Option{latin1} so
+    that you can input German letters such as ä, ü and ß directly.\\
+    \Package{babel} & Language specific typesetting.\\
+    \Package{csquotes} & Package for quoting things using the correct
+    language-dependent quotation marks.\\
+    \Package{scrlayer-scrpage} & Set headers and footer.\\
+    \Package{xspace} & Avoid having to put
+    \enquote{\texttt{\textbackslash\ }} or
+    \enquote{\texttt{\{\}}} after a macro.\\
+    \bottomrule
+  \end{tabular}
+  \caption{Useful packages for layout.}%
+  \label{tab:package:layout}
+\end{table}
+
+The package \Package{scrlayer-scrpage} has superseded \Package{scrpage2}.
+If your version of \LaTeX{} is so old that it does not know about
+\Package{scrlayer-scrpage} adjust the \Package{ubonn-thesis} style file accordingly.
+
+%------------------------------------------------------------------------------
+\section{Appearance}%
+\label{sec:package:appearance}
+%------------------------------------------------------------------------------
+
+It used to be the case that nearly all \LaTeX{} documents used the
+Computer Modern Fonts. That is no longer necessary. There are rather
+complete font sets that are also free that you can use instead.
+%In this guide I use a combination of \Package{Palatino} and other fonts.
+The default font for theses is \Package{newtx} that is available as of \TeXLive 2013.
+If you have this package, then I would recommend using it.
+\Package{txfonts} is an older version of this package that can be used instead, if necessary.
+Some of the spacings in equations have been improved in \Package{newtx}
+and there is a better balance of the sizes of serif, \textsf{sans serif} and \texttt{typewriter} fonts.
+Other fonts that look quite nice (e.g.\ Palatino) can also be used.
+The option \Option{palatino} in \Package{ubonn-thesis} can be used to select this.
+The option actually selects the font packages \Package{mathpazo}, \Package{courier} and \Package{helvet}.
+Another alternative is a package such as \Package{pxfonts} 
+to get both text and math fonts in the same style. 
+Some examples of other possible font packages are given in the style file.
+As mentioned above, certain fonts can be selected directly via options:
+\Option{txfonts}, \Option{newtx} or \Option{palatino}.
+
+Commonly used packages associated with fonts, tables and
+figures are listed in \cref{tab:package:appearance}.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lp{0.75\textwidth}}
+    \toprule
+    \Package{siunitx} & Typeset units properly with correct spacing.\\
+    \Package{graphicx} & The package to use for including graphics.\\
+    \Package{rotating} & Package to use for rotating tables etc. The
+      \Macro{includegraphics} command can rotate figures directly.\\
+    \Package{array} & Adds extra column formatting capabilities.\\
+    \Package{xtab} & Can produce tables that extend over more than one page.\\
+    \Package{booktabs} & Help for producing nicer tables.\\
+    \Package{amsmath}, \Package{amssymb} & Extra math commands and symbols from AMS.\\
+    \Package{hepnicenames} & A somewhat restricted list of predefined elementary particles.\\
+    \Package{heppennames} & A more complete list of predefined elementary particles.
+      Note that \Package{hepnicenames} also loads \Package{heppennames}.
+      The packages are based on \Package{hepparticles}, which you can use to define further particles.\\
+    \Package{mhchem} & Nice package for typesetting chemical elements correctly.\\
+    \Package{xfrac} & Some more options for typesetting fractions.\\
+    \Package{xcolor} & Add colour commands.\\
+    \Package{titlesec} & Change the appearance of chapter and section headings. 
+      See below for more information.\\
+    \Package{microtype} & Small adjustments to word spacings.\\
+    \bottomrule
+  \end{tabular}
+  \caption{Useful packages for appearance.}%
+  \label{tab:package:appearance}
+\end{table}
+
+As alternatives to \Package{xtab}, one can also use
+\Package{supertabular} or \Package{longtable}. 
+All these packages also have the advantage that you
+can specify header and footer text.
+If you use the \Env{mpxtabuar} environment from \Package{xtab} 
+you can include footnotes in a table.
+See the \Package{xtab} documentation for more details.
+It is probably best to only use one of these three packages to avoid conflicts.
+
+Use of the \Package{titlesec} package gives a warning when using \KOMAScript{}; hence
+as of version 3.0 the chapter title formatting is done by hand in \Package{ubonn-thesis}.
+You can switch back to using \Package{titlesec} by giving the option \Option{titlesec}.
+
+The package \Package{microtype} declares itself to be responsible for
+\enquote{Subliminal refinements towards typographical perfection}.
+Need I say more?
+
+%------------------------------------------------------------------------------
+\section{Other packages}%
+\label{sec:package:other}
+%------------------------------------------------------------------------------
+
+Some other useful packages, some of which are included in
+\texttt{ubonn-thesis.sty} are listed in
+\cref{tab:package:other1}.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lp{0.8\textwidth}}
+    \toprule
+    \Package{ifthen} & Provides the \Macro{ifthenelse} command.\\
+    \Package{IEEEtrantools} & Contains useful environments for multiline equations.\\
+    \Package{feynmp} & Draw Feynman graphs with Metapost.\\
+    \Package{axodraw} & Draw Feynman graphs.\\
+    \Package{tikz} & General drawing package that can also be used for Feynman graphs.\\
+    \Package{standalone} & Allows you to have a document that you can
+    directly compile for each figure and also input to another document.\\
+    \Package{hyperref} & Adds \Macro{url} command as well as ability
+    to click on entries on table of contents etc.\\
+    \Package{cleveref} & Provides \enquote{Fig.}, \enquote{Table} etc.\ when you use
+      the \Macro{cref\{fig:plot\}} syntax.\\
+    \Package{bookmark} &  Fixes appendices displaying in PDF viewer index/outline under first appendix
+      instead of under Appendix heading.\\
+    \Package{todonotes} & Nice package to add notes to your text.
+      You can also use it to indicate missing figures.\\
+    \Package{background} & Allows you to add things like DRAFT across the whole document page.\\
+    \Package{subfiles} & Provides a nice alternative to
+    \Macro{include}.\\
+    \Package{subcaption} & A newer alternative to \Package{subfig}.\\
+    \Package{tabularx} & Allows fixed table width with flexible column widths.\\
+    \Package{floatrow} & Add ability to define own floats.\\
+    \Package{physics} & Some useful extra maths commands, especially for differentials.\\
+    \Package{commath} & Some useful extra maths commands --- has not been updated for a while.\\
+    \Package{skmath} & More maths commands that could be useful.\\
+    \Package{adjustbox} & Add much more sophisticated clipping
+    capabilities than offered by \Package{graphicx}.\\
+    \Package{wrapfig} & Allow text to flow around figures.\\
+    \Package{floatflt} & Similar capabilities to \Package{wrapfig} --- allow text to flow around figures.\\
+    \Package{glossaries} & Provide commands for creating a glossary.
+      This is intended to replace the \Package{glossary} package.\\
+    \Package{dcolumn} & Very helpful for lining up columns on character strings such as a decimal point.
+      \Package{siunitx} offers similar and better functionality.\\
+    \Package{refcheck} & Check whether labels are used, i.e.\ if figures and tables are actually referenced.\\
+    \Package{tcolorbox} & Fancy coloured boxes. Also works very well for code listings.\\
+    \bottomrule\\
+  \end{tabular}
+  \caption{Other useful packages.}%
+  \label{tab:package:other1}
+\end{table}
+
+While the \Package{amsmath} package solves many problems that occur if
+you just use the normal \LaTeX{} math mode commands, there are some
+things that are not so nice with long and complicated multiline
+equations. 
+\Package{IEEEtrantools}, in particular the \Env{IEEEeqnarray} environment, can help here.
+See Ref.~\cite{lshort} or the package documentation for more details.
+
+The packages \Package{physics}, \Package{commath} and \Package{skmath} provide some additional maths commands.
+Differentials etc.\ are particularly useful.
+The \Package{physics} package contains a lot of nice and flexible definitions and also handles the spacing around things like \(\dd{x}\) well,
+if you use the \verb|\dd{x}| construction.
+The \Package{commath} package has not been updated for a while.
+\Package{skmath} does quite a lot more then \Package{commath} and even modifies/enhances some standard commands.
+
+The \Package{todonotes} is a very nice package that enables you to add notes to your text.
+By default they will be put in the margin of your document.
+More details can be found in \cref{sec:package:todo}.
+
+The \Package{cleveref} package is a great package for specifying references to
+figures, tables, sections etc.
+You just give the command \Macro{cref\{fig:plot\}} and it will add \enquote{Fig.} or whatever
+you set to the figure number and an unbreakable space.
+Note that you should include \Package{cleveref} by passing \Option{cleveref} as an option
+to \Package{ubonn-thesis}.
+If you just try the usual \Macro{usepackage\{cleveref\}} you may get things in the wrong language.
+This guide has been converted to use the \Package{cleveref} package everywhere.
+
+\Package{standalone} is both a package and a document class. It is
+available from \TeXLive 2012 onwards. It allows you to have a
+standalone document for a \Package{tikz} or \Package{feynmf} figure
+and also input this file into another document. If you run pdf\LaTeX\
+on the file it also automatically crops the resulting picture. This is
+one of those packages where you think \enquote{Why didn't someone
+  create this years ago?}. The \Package{tikz} figures included in this
+guide make use of it.
+
+If you want to include code listings,
+you can use the packages \Package{tcolorbox} or \Package{listings}.
+I used \Package{listings} for quite a while,
+but \Package{tcolorbox} can be used for anything associated with boxes and
+has much more flexibility.
+This guide can has now been adjusted to use \Package{tcolorbox}.
+
+I do not recommend the \Package{subfiles} package by default as it is not
+included in \TeXLive by default. Have a look at
+\url{http://en.wikibooks.org/wiki/LaTeX/General_Guidelines} for
+example for more information. If you want to use the package you have
+to download it and install for yourself. You can do much the same
+thing using AUCTeX inside \texttt{emacs}.
+
+\begin{sloppypar}
+Note that there is a conflict if you use \Package{refcheck}, \Package{subcaption} and \Package{hyperref} together.
+See \url{http://tex.stackexchange.com/questions/273970/conflict-refcheck-subcaption-packages-for-label-with-underscores} for a workaround.
+\end{sloppypar}
+
+It is often useful to indicate whether your thesis is in the draft stage.\index{draft}
+The thesis skeleton uses the package \Package{background} for this.
+% It is only available as of \TeXLive 2011.
+% Hence \enquote{Draft} is instead put in the heading for older versions.
+% As an alternative, you can try the package \Package{draftwatermark}.\footnote{%
+% \Package{draftwatermark} needs \Macro{unitlength} to be set to \SI{1}{pt}.
+% This is not the default setting in \Package{ubonn-thesis}.
+% The 2009 thesis skeleton contains \Macro{setlength\{\Macro{unitlength\}\{1pt\}}} (commented out).
+% Given that this is a global setting, neither it nor \Package{draftwatermark} are included by default.}
+
+A list of other packages that are commonly used is given in
+\cref{tab:package:other2}. They are not
+included in the list above, because they are either not really needed
+or have been superseded by other packages.
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{lp{0.8\textwidth}}
+    \toprule
+    \Package{hepunits} & Typeset units properly with correct spacing.\\
+    \Package{units} & Typeset units properly with correct spacing.\\
+    \Package{SIunits} & Typeset units properly with correct spacing.
+      \Package{hepunits} uses this package, so it does not need to be added explicitly\\
+    \Package{fancyhdr} & As the name suggests, do your own header and footer configuration.
+      Within \KOMAScript{} it is recommended to use \Package{scrlayer-scrpage} instead.\\
+    \Package{feynmf} & Draw Feynman graphs with Metafont.\\
+    \Package{draftwatermark} & Another package that allows you to add DRAFT to the background each page.\\
+    \Package{subfig} & As the name suggests make sub-figures and add
+    separate captions for them. \emph{This package has apparently been
+      deprecated.}\\
+    \Package{subfigure} & As the name suggests make sub-figures and add
+    separate captions for them. \emph{This package is deprecated.}\\
+    \Package{color} & Add colour commands --- \Package{xcolor} is
+    needed to colour boxes around links.\\
+    \Package{float} & As far as I can tell \Package{floatflt} offers more options.\\
+    \Package{caption} & Much more control on captions --- as
+    \KOMAScript{} also has many options, not sure this is necessary.\\
+    \Package{ziffer} & Spacing with a comma as decimal separator is
+    correct.\\
+    \Package{nomencl} & Another package for creating a glossary.\\
+    \Package{listings} & Code listings. I switched to \Package{tcolorbox}.\\
+    \Package{fncychap} & Another package for changing the style of the
+    chapter heading.\\
+    \Package{quotchap} & Another package for changing the style of the
+    chapter heading.\\
+    \bottomrule
+  \end{tabular}
+  \caption{Other packages that are often used, but I have already
+    given alternatives.}%
+  \label{tab:package:other2}
+\end{table}
+
+As indicated, the \Package{ziffer} package is advertised as providing
+the correct spacing after a comma in math mode if you use the comma as
+the decimal separator. Compare \(2,5\) with 2,5 and \(2{,}5\). The first
+spacing is wrong. If you use the \Package{ziffer} package it will be
+correct. However, it does seem to conflict with the use of the
+\Package{dcolumn} package, so I cannot compile this guide
+if \Package{ziffer} is included. Some  workarounds are discussed in
+\cref{sec:layout:german}. In addition, the \Package{siunitx}
+package contains the same functionality, which can simply be steered
+by changing the document language, as discussed in
+\cref{sec:table:siunitx}.
+Hence, \Package{ziffer} is not really needed anymore.
+
+%------------------------------------------------------------------------------
+\section{ToDo Notes}%
+\label{sec:package:todo}
+%------------------------------------------------------------------------------
+
+If you include the option \Option{todonotes} with \Package{ubonn-thesis},
+the margin of the thesis will also be adjusted a bit to leave more space for such notes.
+As an example, the \Macro{mynote} command is defined.
+
+If you turn on the option \Option{todonotes}, the package will be loaded.
+With the option \Option{shownotes} they will also be 
+\mynote{displayed.}{The \Option{shownotes} also turns on \Option{todonotes}.}
+
+Another nice feature of the \Package{todonotes} package is that you can use
+\Macro*{missingfigure\{text\}}\index{\textbackslash missingfigure}
+to indicate figures that you still want to include.
+See for example \cref{fig:missing}. You can get a list of your notes
+by adding the \Macro{listoftodos} command somewhere.
+
+The macro \Macro{todo} has some problems inside floats.
+You should pass the option \Option{inline} to \Macro{mynote} if you
+want a comment inside a caption. If you also include a \enquote{List of Tables}
+or \enquote{List of Figures}, then you have to provide a short caption
+as an option or move the note outside (after) the caption.
+
+\begin{figure}[htbp]
+  \missingfigure{Still need to create the plot to be included here.}
+  \caption[Optional caption without \Macro{mynote} so that \enquote{List of Figures} does not break.]{%
+    This figure still has to be added.
+    \mynote[inline]{}{Use the option \Option{inline} to include a note in a caption,
+    as this is floating. A note that does not point to a block of text needs a
+    blank first argument.}
+  }%
+  \label{fig:missing}
+\end{figure}
+
+
+%------------------------------------------------------------------------------
+\section{pdf\LaTeX, Lua\LaTeX or Xe\LaTeX}%
+\label{sec:package:xelatex}\index{pdfLaTeX@pdf\LaTeX}\index{LuaLaTeX@\LuaLaTeX}\index{XeLaTeX@\XeLaTeX}
+%------------------------------------------------------------------------------
+
+You may have heard that successors to the \TeX\ engine are being planned
+and that \LaTeX3 may at some point replace the current pdf\TeX\ engine.
+This has been the case for many years,
+but so far it does not seem to be clear
+which development, if any, will replace pdf\LaTeX.
+The two main directions are \LuaLaTeX and \XeLaTeX.
+The big advantage of these new developments is that they can use the installed fonts on your machine directly.
+\LuaLaTeX\ also integrates a scripting language, Lua.
+As a result, it also does not have some of the restrictions of \LaTeX\ or \XeLaTeX,
+e.g.\ the number of open files for writing.
+
+As of version 7.0 I have adapted the thesis style file able to be able to use both \LuaLaTeX\ and \XeLaTeX.
+The font specifications had to be changed.
+The main package that should be used is \Package{fontspec}.
+However, there are several different packages that can be used to set the fonts for mathematics.
+I tried out \Package{unicode-math}, \Package{mathfont} (which only works with \LuaLaTeX)
+and \Package{mathspec} (which only works with \XeLaTeX).
+While I got test files to compile using all three,
+\Package{unicode-math} seems to be the furthest developed,
+and works with both \LuaLaTeX\ and \XeLaTeX, so it is the package I have used.
+You can enter Greek letters etc., such as \(\pi\) directly when using \Package{unicode-math},
+but you then have to find out how to enter them on your keyboard.
+\Package{unicode-math} introduces the macros
+\Macro{symup}, \Macro{symit}, \Macro{symbf}, \Macro{symsf}, \Macro{symbtt}
+for steering of boldface etc. in math mode.
+There are also the macros \Macro{symbfit}, \Macro{symbfcal} etc.
+The package recommends these macros as being preferable to the usual \Macro{mathbf} etc.
+See the package documentation for more information.
+ 
+Both the skeleton thesis and the thesis guide can be compiled with either pdf\LaTeX, \LuaLaTeX\ or \XeLaTeX.
+You can compile the thesis using the commands \Command{make} or \Command{make thesis} for pdf\LaTeX,
+\Command{make thesislua} for \LuaLaTeX, add
+\Command{make thesisxe} for \XeLaTeX.
+You can compile the thesis guide using the commands \Command{make guide} for pdf\LaTeX,
+\Command{make guidelua} for \LuaLaTeX, add
+\Command{make guidexe} for \XeLaTeX.

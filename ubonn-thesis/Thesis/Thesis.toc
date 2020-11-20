@@ -1,0 +1,71 @@
+\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\babel@toc {UKenglish}{}
+\babel@toc {ngerman}{}
+\babel@toc {UKenglish}{}
+\babel@toc {UKenglish}{}
+\babel@toc {UKenglish}{}
+\babel@toc {ngerman}{}
+\babel@toc {UKenglish}{}
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}
+\contentsline {chapter}{\numberline {2}Theoretical Background}{3}{chapter.2}
+\contentsline {section}{\numberline {2.1}The Standard Model of Particle Physics}{3}{section.2.1}
+\contentsline {section}{\numberline {2.2}The Top Quark}{5}{section.2.2}
+\contentsline {section}{\numberline {2.3}Four-Top-Quark Production}{6}{section.2.3}
+\contentsline {section}{\numberline {2.4}Three-Top-Quark Production}{7}{section.2.4}
+\contentsline {chapter}{\numberline {3}The Large Hadron Collider and the ATLAS Experiment}{9}{chapter.3}
+\contentsline {section}{\numberline {3.1}The Large Hadron Collider}{9}{section.3.1}
+\contentsline {paragraph}{\nonumberline Proton Acceleration}{10}{section*.9}
+\contentsline {paragraph}{\nonumberline Luminosity and Pile-up}{10}{section*.10}
+\contentsline {section}{\numberline {3.2}The ATLAS Experiment}{10}{section.3.2}
+\contentsline {paragraph}{\nonumberline The ATLAS Coordinate System}{10}{section*.11}
+\contentsline {paragraph}{\nonumberline Inner Detector}{11}{section*.12}
+\contentsline {paragraph}{\nonumberline Calorimeters}{11}{section*.14}
+\contentsline {paragraph}{\nonumberline Muon Spectrometer}{12}{section*.15}
+\contentsline {paragraph}{\nonumberline Object reconstruction}{12}{section*.16}
+\contentsline {chapter}{\numberline {4}Datasets and Event Selection}{13}{chapter.4}
+\contentsline {section}{\numberline {4.1}Simulated Datasets}{13}{section.4.1}
+\contentsline {paragraph}{\nonumberline Event Weights}{14}{section*.19}
+\contentsline {section}{\numberline {4.2}Object and Event Selection}{14}{section.4.2}
+\contentsline {paragraph}{\nonumberline Signal Region}{15}{section*.21}
+\contentsline {chapter}{\numberline {5}Introduction to Deep Learning}{17}{chapter.5}
+\contentsline {section}{\numberline {5.1}Artificial Neural Networks}{17}{section.5.1}
+\contentsline {section}{\numberline {5.2}Training of Feed-Forward Neural Networks}{18}{section.5.2}
+\contentsline {paragraph}{\nonumberline Loss function}{19}{section*.24}
+\contentsline {paragraph}{\nonumberline Backpropagation algorithm}{19}{section*.25}
+\contentsline {section}{\numberline {5.3}Recurrent Neural Networks}{20}{section.5.3}
+\contentsline {section}{\numberline {5.4}Optimization of Neural Networks}{21}{section.5.4}
+\contentsline {paragraph}{\nonumberline Performance measures}{21}{section*.27}
+\contentsline {paragraph}{\nonumberline Optimization algorithms}{22}{section*.29}
+\contentsline {paragraph}{\nonumberline Activation functions and Weight initialization}{23}{section*.30}
+\contentsline {paragraph}{\nonumberline Regularization}{24}{section*.32}
+\contentsline {chapter}{\numberline {6}Neural Network Setup}{25}{chapter.6}
+\contentsline {section}{\numberline {6.1}Splitting Strategy}{25}{section.6.1}
+\contentsline {section}{\numberline {6.2}Feature Selection}{26}{section.6.2}
+\contentsline {section}{\numberline {6.3}Feature Transformation and Event Weight Treatment}{28}{section.6.3}
+\contentsline {chapter}{\numberline {7}Results}{31}{chapter.7}
+\contentsline {section}{\numberline {7.1}Signal Classification using Feedforward Neural Networks}{31}{section.7.1}
+\contentsline {paragraph}{\nonumberline Architecture}{31}{section*.37}
+\contentsline {paragraph}{\nonumberline Weight Initialization and Activation Functions}{35}{section*.42}
+\contentsline {paragraph}{\nonumberline Learning Rate and Optimization Algorithms}{37}{section*.45}
+\contentsline {paragraph}{\nonumberline Polynomial Learning Rate Decay}{39}{section*.49}
+\contentsline {paragraph}{\nonumberline Cyclic Learning Rate Decay}{41}{section*.53}
+\contentsline {paragraph}{\nonumberline Regularization}{44}{section*.58}
+\contentsline {paragraph}{\nonumberline Achieved Separation}{45}{section*.61}
+\contentsline {paragraph}{\nonumberline Validation and Error Estimation}{47}{section*.64}
+\contentsline {section}{\numberline {7.2}Multi Classification using Feedforward Neural Networks}{48}{section.7.2}
+\contentsline {paragraph}{\nonumberline Fourteen Classes}{48}{section*.66}
+\contentsline {paragraph}{\nonumberline Class Weights}{49}{section*.68}
+\contentsline {paragraph}{\nonumberline Three Classes}{50}{section*.70}
+\contentsline {section}{\numberline {7.3}Signal Classification using Recurrent Neural Networks}{51}{section.7.3}
+\contentsline {paragraph}{\nonumberline Architecture}{51}{section*.72}
+\contentsline {paragraph}{\nonumberline Learning Rate and Batch size}{52}{section*.74}
+\contentsline {paragraph}{\nonumberline Achieved Separation}{54}{section*.77}
+\contentsline {paragraph}{\nonumberline Validation and Error Estimation}{55}{section*.80}
+\contentsline {section}{\numberline {7.4}Performance Evaluation of CPUs and GPUs}{56}{section.7.4}
+\contentsline {section}{\numberline {7.5}Reconstruction of Two Hadronic Top Quarks}{58}{section.7.5}
+\contentsline {paragraph}{\nonumberline Reconstruction principle}{58}{section*.84}
+\contentsline {paragraph}{\nonumberline Calibration}{59}{section*.85}
+\contentsline {paragraph}{\nonumberline Reconstruction Results}{60}{section*.87}
+\contentsline {chapter}{\numberline {8}Conclusion}{63}{chapter.8}
+\contentsline {chapter}{\nonumberline Bibliography}{65}{chapter*.91}
+\contentsline {chapter}{\numberline {A}Appendix}{69}{appendix.A}

@@ -1,0 +1,29 @@
+\documentclass{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+\usepackage[italic]{hepnicenames}
+\makeatletter\def\@shiftlen@anti@gen@bar{0mu}\makeatother
+\usepackage[svgnames]{xcolor}
+\usepackage{tikz-feynhand}
+
+
+\begin{document}
+\begin{tikzpicture}
+  \setlength{\feynhandlinesize}{1.0pt}
+  \tikzfeynhandset{every dot={/tikz/color=Crimson},}
+  \begin{feynhand}
+    \vertex [particle, Blue] (q1) at (-3.0, 2.0) {\Pq};
+    \vertex [particle, Blue] (q2) at (-3.0, -2.0) {\Paq};
+    \vertex [particle, IndianRed] (t1) at (3.0, 2.0) {\Pqt};
+    \vertex [particle, IndianRed] (t2) at (3.0, -2.0) {\Paqt};
+    \vertex [dot, Crimson] (qg) at (-1.0, 0.0) {};
+    \vertex [dot, Crimson] (gt) at (1.0, 0.0) {};
+    \propagator [fermion, Blue] (q1) to (qg);
+    \propagator [fermion, Blue] (qg) to (q2);
+    \propagator [gluon, ForestGreen] (qg) to [edge label=\Pg, color=ForestGreen] (gt);
+    \propagator [fermion, IndianRed] (gt) to (t1);
+    \propagator [fermion, IndianRed] (t2) to (gt);
+  \end{feynhand}
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,44 @@
+\documentclass[a4paper, twoside, ngerman, UKenglish]{scrartcl}
+%------------------------------------------------------------------------------
+% Extra information on printing a PhD thesis
+
+%------------------------------------------------------------------------------
+\usepackage{../ubonn-thesis}
+\usepackage{guide_defs}
+
+%------------------------------------------------------------------------------
+\begin{document}
+
+\title{Submitting and Printing a PhD Thesis}
+\subtitle{\vspace*{4ex}
+    in the\\
+    Faculty of Mathematics and Natural Sciences\\
+    of the\\
+    Rheinischen Friedrich-Wilhelms-Universität Bonn
+}
+\author{Ian C. Brock}
+\maketitle
+
+%------------------------------------------------------------------------------
+\section{Introduction}
+Questions often come up when your thesis is finished and now you have
+to print it and submit it. The \foreignquote{ngerman}{Promotionsbüro}
+and the university library (ULB) have instructions on what you have to
+do, but it is sometimes not clear what this means in terms of the
+cover pages offered by this thesis framework.
+
+For the printed version of your thesis, you probably want
+\Package{hyperref} links and the table of contents to be black. In
+order to do this, you should uncomment the \Macro{hypersetup} command
+that is in the thesis main file, just after the
+\Macro{usepackage}\texttt{\{mythesis/thesis\_defs\}}.
+You should also decide if you want to keep the back references in the bibliography.
+
+\section{Instructions}
+\input{guide_phdsubmit}
+
+You can contact the ULB to get suggestions for print
+shops that can make copies of your thesis in good enough quality to be
+accepted by the university library.
+
+\end{document}

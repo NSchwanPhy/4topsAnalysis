@@ -1,0 +1,55 @@
+% \RequirePackage{listings}
+% \RequirePackage{showexpl}
+% \RequirePackage[listingsutf8]{tcolorbox}
+\RequirePackage[listings]{tcolorbox}
+\tcbset{colframe=Blue, colback=Azure}
+% \tcbset{run pdflatex}
+% \tcbset{text outside listing}
+\newtcblisting{bashlisting}{%
+  colback=Honeydew, colframe=Green,
+  listing only, listing options={language=bash},
+  fontupper=\ttfamily\small}
+% \definecolor{mygreen}{rgb}{0,0.6,0}
+% \definecolor{mygray}{rgb}{0.5,0.5,0.5}
+% \definecolor{mymauve}{rgb}{0.58,0,0.82}
+% \definecolor{Comments}{rgb}{0,0.63,1}
+% \definecolor{Keywords}{rgb}{0,0,1}
+% \definecolor{Numbers}{rgb}{0.5,0,0}
+% \definecolor{Strings}{rgb}{0,0.63,0}
+
+% Define a new environment for LaTeX source
+% \lstnewenvironment{lstlatex}[1][]{%
+%   \lstsetlatex
+% }{}
+
+% \renewcommand\ResultBox{\fcolorbox{blue}{lightgray}}
+% \setlength\ResultBoxSep{5mm}%  default: \fboxsep
+% \setlength\ResultBoxRule{1pt}% default: \fboxrule
+
+% \newcommand{\lstsetlatex}{%
+% \lstset{ 
+%   language=[LaTeX]TeX,
+%   backgroundcolor=\color{white},
+%   basicstyle=\ttfamily\scriptsize,
+%   commentstyle=\color{Comments}\slshape,
+%   keywordstyle=\color{Keywords}\bfseries,
+%   stringstyle=\color{Strings},
+%   breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+%   breaklines=true,                 % sets automatic line breaking
+%   keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+%   morekeywords={\text},
+%   numbers=none,                    % where to put the line-numbers; possible values are (none, left, right)
+%   showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+%   showstringspaces=false,          % underline spaces within strings only
+%   showtabs=false,                  % show tabs within strings adding particular underscores
+%   tabsize=2,
+% }
+% explpreset={rframe=none,width=0.3\textwidth}%
+% }
+  % numberstyle=\tiny\color{Numbers}, % the style that is used for the line-numbers
+  % escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  % frame=single,	                   % adds a frame around the code
+  % rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  % stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  % numbersep=5pt,                   % how far the line-numbers are from the code
+  % title=\lstname,                   % show the filename of files included with \lstinputlisting; also try caption instead of title
