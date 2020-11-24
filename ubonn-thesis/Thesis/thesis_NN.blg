@@ -1,5 +1,0 @@
-[0] Config.pm:302> INFO - This is Biber 2.9
-[0] Config.pm:305> INFO - Logfile is 'thesis_NN.blg'
-[34] biber:313> INFO - === Do Sep 17, 2020, 13:04:56
-[173] Utils.pm:185> ERROR - Cannot find control file 'thesis_NN.bcf'! - did you pass the "backend=biber" option to BibLaTeX?
-[174] Biber.pm:114> INFO - ERRORS: 1
