@@ -1,9 +1,10 @@
 Niklas Schwan 16.11.2020
 
-/*******************************************\
-/*** tttt analysis using Neural Networks ***\
-/*******************************************\
+/*********************************************\
+/*** tttt analysis ( Deep Neural Networks) ***\
+/*********************************************\
 
+I wrote the code in this repository as part of my master thesis (http://cds.cern.ch/record/2751676). The code follows a modul programming aproach and is written in python.
 
 
 
