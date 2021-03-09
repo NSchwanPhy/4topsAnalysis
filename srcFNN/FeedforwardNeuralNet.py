@@ -12,6 +12,7 @@ import ROOT
 import tensorflow as tf
 #print(tf.__version__)
 
+""" Thread control for usage on a cluster """
 NUM_THREADS=1
 tf.config.threading.set_inter_op_parallelism_threads(NUM_THREADS)
 tf.config.threading.set_intra_op_parallelism_threads(NUM_THREADS)
@@ -25,14 +26,28 @@ from tensorflow.keras.regularizers import l2, l1
 from tensorflow.keras import backend as K
 
 def Main(ANNSetup,DataSet,BDTSetup=None,BootStrap=('vali',None)):
-    np.random.seed(5)
+    """
+    Transforms the DataSet to a keras readable version and passes the configuration to the selected API
+
+    ANNSetup:      Definition of the hyperparameters of the multivariant method
+    DataSet:       Dataset created by the Sampler
+    BDTSetup:      None if no BDT should be trained else True
+    BootStrap:     Bootstrap setup tuble (Sample,random seed)
+
+    Output:        trained model and Aucs for each training step
+    """
+    # Random seed for the NN cacluations
+    np.random.seed(5)              
     tf.compat.v1.set_random_seed(5)
-    train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName)
-    ANNSetup.InputDim = len(DataSet.LVariables)
-    GuardFNN(ANNSetup)
+
+    train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName)    # Transform the DataSet into keras readable and aplying bootstrap if needed
+    ANNSetup.InputDim = len(DataSet.LVariables)                             # Set Input dim (#features)
+    GuardFNN(ANNSetup)                                                      # Protect the setup from typos
+
+    # pass the Data to the correct API
     if(ANNSetup.Architecture == 'TMVA'):
         dataloader, factory, output = Init(train, test, DataSet.LVariables)
-#        TMVAFNN(ANNSetup, dataloader, factory)
+        TMVAFNN(ANNSetup, dataloader, factory)
         if(BDTSetup != None):
             BDT(BDTSetup, dataloader, factory)
             #GetRocs(factory, dataloader,"BDTEven")
@@ -56,7 +71,7 @@ def Main(ANNSetup,DataSet,BDTSetup=None,BootStrap=('vali',None)):
 
 
 def Init(train,test,VarList):
-    # Setup TMVA
+    """ Implementation for TMVA Neural Network training """
     ROOT.TMVA.Tools.Instance()
     ROOT.TMVA.PyMethodBase.PyInitialize()
 
@@ -76,6 +91,8 @@ def Init(train,test,VarList):
     return dataloader, factory , output
 
 def TMVAFNN(ANNSetup, dataloader, factory):
+    """ Build the keras model used in TMVA """
+
     model = Sequential()
     model.add(Dense(ANNSetup.Neurons[0], activation='selu', input_dim=ANNSetup.InputDim))
     if(ANNSetup.Dropout != None):
@@ -99,6 +116,7 @@ def TMVAFNN(ANNSetup, dataloader, factory):
     return
 
 def BDT(BDTSetup, dataloader, factory):
+    """ BDT defintion in TMVA """
 
     factory.BookMethod(dataloader, ROOT.TMVA.Types.kBDT,
                         BDTSetup.ModelName ,"!H:!V:NTrees="+BDTSetup.TreeNumber+":MinNodeSize="+BDTSetup.NMinActual+"%:BoostType=Grad:Shrinkage="+BDTSetup.Shrinkage+
@@ -108,6 +126,7 @@ def BDT(BDTSetup, dataloader, factory):
     return
 
 def Finialize(factory, output):
+    """ training, testing and Evaluation off all models definited in TMVA """
 
     factory.TrainAllMethods()
     factory.TestAllMethods()
@@ -117,6 +136,7 @@ def Finialize(factory, output):
     return
 
 def GetRocs(factory, dataloader,name):
+    """ Calcuation of the AUC with TMVA """
     print(name)
     f = ROOT.TFile('/gpfs/share/home/s6nsschw/Data/NNOutput.root')
     TH_Train_S = f.Get("/dataset/Method_"+name+"/"+name+"/MVA_"+name+"_Train_S")
@@ -136,10 +156,14 @@ def GetRocs(factory, dataloader,name):
 
 
 def FNN(ANNSetup, test, train):
+    """ Bulding a Keras for the Feedforward Neural Networks """
+
     #ClassWeights = GetClassWeights(train.OutTrue,train.Weights)
-    TrainWeights = GetTrainWeights(train.OutTrue,train.Weights)
+    TrainWeights = GetTrainWeights(train.OutTrue,train.Weights)    # Transformation of the Monte Carlo weights for training
 
     #tf.debugging.set_log_device_placement(True)                   #Check if system is running on the correct device
+
+    #Create the model and pass it the data for Callbacks
     model = Sequential()
     model.X_train = train.Events
     model.Y_train = train.OutTrue
@@ -148,11 +172,11 @@ def FNN(ANNSetup, test, train):
     model.Y_test  = test.OutTrue
     model.W_test  = test.Weights
 
-    model = BuildModel(ANNSetup,model)
+    model = BuildModel(ANNSetup,model)                          # Building the model from the predefinite configuration (FNN.py)
 
-    Opti = GetOpti(ANNSetup.Optimizer,ANNSetup.LearnRate.Lr)
-    lrate = GetLearnRate(ANNSetup.LearnRate,ANNSetup.Epochs)
-    Roc = Histories()
+    Opti = GetOpti(ANNSetup.Optimizer,ANNSetup.LearnRate.Lr)    # Set the optimizer
+    lrate = GetLearnRate(ANNSetup.LearnRate,ANNSetup.Epochs)    # Set a learning rate schedule
+    Roc = Histories()                                           # Definie history for the AUC results at each training step 
     #Roc = RedHistory()
     if(lrate == None):
         Lcallbacks = [Roc]
@@ -163,7 +187,7 @@ def FNN(ANNSetup, test, train):
 
     model.summary()
     model.compile(optimizer=Opti, loss='binary_crossentropy', metrics=['accuracy'])
-    start = time.clock()
+    start = time.clock()                                        # start clock to track training time
     history = model.fit(train.Events,train.OutTrue, sample_weight=TrainWeights, validation_data=(test.Events, test.OutTrue, test.Weights), epochs=int(ANNSetup.Epochs),
                         batch_size=int(ANNSetup.Batch), verbose=2, callbacks=Lcallbacks)                  #, callbacks=Lcallbacks , sample_weight=TrainWeights
     #history = model.fit(train.Events,train.OutTrue,batch_size=4000,epochs=2)
@@ -184,24 +208,31 @@ def FNN(ANNSetup, test, train):
 
 
 def FastAUC(model):
-    
+    """ Calculate AUC (debug method) """
+
     train_pred = model.predict(model.X_train)
     test_pred  = model.predict(model.X_test)
     return roc_auc_score(model.Y_train,train_pred), roc_auc_score(model.Y_test, test_pred)
 
 
 def MultiFNN(ANNSetup, test, train):
+    """ Bulding a Keras for multi-classifer """
+
+    #One hot encoding
     TrainMultiClass   = to_categorical(train.MultiClass)
     TestMultiClass   = to_categorical(test.MultiClass)
-    #ClassWeights = GetClassWeights(train.MultiClass,train.Weights)
-    TrainWeights = GetTrainWeights(train.MultiClass,train.Weights)
 
+    #ClassWeights = GetClassWeights(train.MultiClass,train.Weights)
+    TrainWeights = GetTrainWeights(train.MultiClass,train.Weights)              # Transformation of the Monte Carlo weights for training
+
+    #Create the model and pass it the data for Callbacks
     model = Sequential()
     model.Y_test  = TestMultiClass[:,0]
     model.X_train = train.Events
     model.Y_train = TrainMultiClass[:,0]
     model.W_train = train.Weights       #Original weights!
 
+    # Build model from configuration (set in FNN.py)
     model.add(Dense(ANNSetup.Neurons[0], activation='selu', input_dim=ANNSetup.InputDim))
     if(ANNSetup.Dropout != None):
         model.add(Dropout(ANNSetup.Dropout))
@@ -211,9 +242,9 @@ def MultiFNN(ANNSetup, test, train):
         else:
             model.add(Dense(ANNSetup.Neurons[i], activation='selu'))
 
-    Opti = GetOpti(ANNSetup.Optimizer,ANNSetup.LearnRate.Lr)
-    lrate = GetLearnRate(ANNSetup.LearnRate,ANNSetup.Epochs)
-    Roc = Histories()
+    Opti = GetOpti(ANNSetup.Optimizer,ANNSetup.LearnRate.Lr)        # Set optimizer
+    lrate = GetLearnRate(ANNSetup.LearnRate,ANNSetup.Epochs)        # Set learning rate schedule
+    Roc = Histories()                                               # Create history for AUC during training
     Lcallbacks = [Roc,lrate]
 
     model.compile(optimizer=Opti, loss='categorical_crossentropy', metrics=['accuracy'])
@@ -236,6 +267,7 @@ def MultiFNN(ANNSetup, test, train):
 
 
 def CrossCheck(dataloader):
+    """ make a njets plots to check data gets imported in the right way """
 
     DataSet = dataloader.GetDataSetInfo().GetDataSet()                
     EventCollection = DataSet.GetEventCollection()
@@ -252,7 +284,10 @@ def CrossCheck(dataloader):
 
     return
 
+
 def GetOpti(Optimizer,LearnRate):
+    """ Set optimizer as definite in the config """
+
     if(Optimizer == 'SGD'):
         Opti = optimizers.SGD(lr=LearnRate, momentum=0.0, nesterov=False)
     elif(Optimizer == 'Rmsprop'):
@@ -265,6 +300,8 @@ def GetOpti(Optimizer,LearnRate):
     return Opti
 
 def GetLearnRate(DILr,Epochs):
+    """ Using different Callbacks (definite in Callbacks.py) the learning rate schedule is set"""
+
     if(DILr.mode == 'poly'):
         ScheduelLr = PolynomialDecay(maxEpochs=DILr.StepSize,initAlpha=DILr.Lr,power=DILr.factor)
         ScheduelLr.plot(range(1,int(Epochs)+1))
@@ -281,6 +318,7 @@ def GetLearnRate(DILr,Epochs):
     return np.asarray(lrate)
 
 def GetClassWeights(Labels,Weights):
+    """ Calculation of class weights (weight all samples to the same Yield)"""
     ClassWeight = {}
     for Class in np.unique(Labels):
         TotalWeight = np.sum(Weights[Labels == Class])
@@ -293,7 +331,7 @@ def GetClassWeights(Labels,Weights):
 def GetTrainWeights(Labels,Weights):
     """ In some cases event weights are given by Monte Carlo generators, and may turn out to be overallvery small or large number.  To avoid artifacts due to this use renormalised weights.
         The  event  weights  are  renormalised such  that  both,  the  sum  of  all  weighted  signal  training  events  equals  the  sum  of  all  weights  ofthe background training events
-        [from tmva guide] """
+        [https://arxiv.org/pdf/physics/0703039.pdf] """
     Weights = np.where(Weights > 0, Weights, 0)                 #Setting negative weights to zero for training
     ReferenceLength = len(Labels[Labels == 0])
     for Class in np.unique(Labels):
@@ -305,6 +343,8 @@ def GetTrainWeights(Labels,Weights):
 
 
 def Winit(Weightinit):
+    """ Look up for weight initialization """
+
     DicWinit = {'LecunNormal':tf.keras.initializers.lecun_normal(seed=None),
             'LecunUniform':tf.keras.initializers.lecun_uniform(seed=None),
             'GlorotNormal':tf.keras.initializers.GlorotNormal(seed=None),
@@ -315,6 +355,8 @@ def Winit(Weightinit):
 
 
 def BuildModel(ANNSetup,model):
+    """  Building model from config (definite in FNN.py) """
+
     if(isinstance(ANNSetup.Activ,str)):
         model.add(Dense(ANNSetup.Neurons[0], kernel_regularizer=l2(ANNSetup.Regu), activation=ANNSetup.Activ, kernel_initializer=Winit(ANNSetup.Winit), input_dim=ANNSetup.InputDim))
         if(ANNSetup.Dropout != None):

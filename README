@@ -1,10 +1,15 @@
-Niklas Schwan 16.11.2020
+Niklas Schwan 13.12.2020
 
 /*******************************************\
 /*** tttt analysis using Neural Networks ***\
 /*******************************************\
 
-This Framework was not made for sharing it with other people. If there is anything unclear ask me.
+I developed this small framework during my master thesis to analysis the four-top-quark signiture simulated in the ATLAS detector. Details of the analysis strategy and
+the simulation setup for the datasets can be found in my master thesis (http://cds.cern.ch/record/2751676).
+The framework follows a modular programming approach and imports the data from Ntupes (root data format). The different classes and moduls are used in two scripts FNN.py
+for Feedforward Neural Networks and RNN.py for Recurrent Neural Networks.
+
+The AUCs are calculated following the approach choosen in https://github.com/SiLiKhon/my_roc_auc to incorperate the negative weights from monte carlo weights.
 
 
 ------
@@ -13,19 +18,20 @@ Usage
 
 First steps:
 1. Adjust import path in DIClasses.py line 116 - 125
-2. Adjust Fast save path in SampleHandler line 330 - 338
+2. Adjust Fast save path in SampleHandler.py line 330 - 338
 
 
 python FNN.py	(For Feedforward Neural Networks)
 python RNN.py	(For Recurrent Neural Networks)
 
-Usage on baf: Set additional flag for treat controll (https://confluence.team.uni-bonn.de/x/b4e7)
+Usage on baf (Bonn cluster): Set additional flag for threat controll (https://confluence.team.uni-bonn.de/x/b4e7)
 
 
 ------
 FNN.py
 ------
-I will give some commands on the flags etc. in this file now:
+
+The important flags are:
 Samples			Use 'nomLoose' if you want to use all samples in the anaylsis else give it a list (which samples are implemented you can see in DIClasses.py)
 ModelName		Name of the model also the flag that is used to find which variables should be used in the Neural Network
 BDT			BDT model Name if None no Bdt is trained (can only be used if the "Type" is TMVA
@@ -36,7 +42,7 @@ Odd			As you may have read in my thesis I train two Neural Networks one on the o
 PreTrained		This is a flag from the Evaluation script if the evaluation was done before the predictions on the test dataset are saved and can be reused by setting this flag to True
 SavePath		Where to save prediction and models
 Type			I implemented the NN in two different ways directly in keras (FNN or FNNMulti) and using the TMVA framework. TMVA was there to compare and for the BDT I would not recomment to use
-			it for opimization its not flexable enough. FNNM is for binary classification and FNNMulti for multi class how much classes you want you need to definie in SampleHandeler.py default are
+			it for opimization its not flexable enough. FNN is for binary classification and FNNMulti for multi class how much classes you want you need to definie in SampleHandeler.py default are
 			14 Classes (all backgrounds as one class)
 Opti			Optimizer of the Neural Network (implemented SGD, Adam, Rmsprop and Adagrad)
 Winit			Weight initilaization (implemented Lecun, Glorot and He for both uniform and normal distributions)

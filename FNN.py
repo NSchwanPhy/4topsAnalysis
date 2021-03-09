@@ -14,15 +14,16 @@ import os
 
 """ Analysis Setup """
 np.random.seed(15)                  #Random seed used for splitting
-#Parameters
-ModelName  = 'FNN18'                # Set of Variables
+Samples    = 'nomLoose'             # 'nomLoose' All samples, else List of Samples needed
+ModelName  = 'FNN18'                # Set of Variables (definite in DIClasses Init function)
 BDT        = None                   # BDT model Name if None no Bdt is trained (TMVA only)
-EvalFlag   = False                  # Should the models be evaluated? 
-Odd        = False                  # Should the Odd combination be trained?
-PreTrained = False                  # Was the Model allready evaluated before? 
+EvalFlag   = False                  # Evaluation of the model
+Odd        = False                  # Training of the Odd model (exchange of the training and testing set)
+PreTrained = False                  # Evaluate a model previously trained 
+SavePath   = './ANNOutput/FNN/'     # NN trainings data output save path
 
 """ Neural Network Parameters """
-Type       = 'FNN'                #FNN, TMVA, FNNMulti
+Type       = 'FNN'                 #FNN (Keras), TMVA, FNNMulti
 Opti       = 'Adam'                #Adam, Rmsprop, SGD, Adagrad
 Winit      = 'GlorotNormal'        #Lecun, Glorot, He (Normal or Uniform)
 activation = 'elu'                 #if number => alpha leaky relu elif selu, relu, elu etc.
@@ -31,10 +32,10 @@ if(activation.replace('.','',1).isdigit()):
 Epochs     = 1
 Batch      = 10000
 #Neurons  = [int(num) for num in sys.argv[1].split(',')]
-Neurons    = [1,1]                 #Last Neuron should be 2 for TMVA, 1 for FNN , or #classes for FNNMulti
-Dropout    = None                  #No dropout -> None
-Regu       = 0                     #l2
-Bootstrap  = ('test',None)                             #(Sample,Random seed for Bootstrap)
+Neurons    = [1,1]                 #Last layer should contain 2 Neurons for TMVA, 1 for FNN , or #classes for FNNMulti
+Dropout    = None                  #prop. of Dropout (No dropout -> None)
+Regu       = 0                     #l2 regularization
+Bootstrap  = ('test',None)         #Bootstrap option for error evaluation (Sample,Random seed for Bootstrap)
 
 """" Learning rate scheduel """
 #LearnRate  = DIClasses.DILrSchedule('poly',0.004,factor=2,StepSize=Epochs)
@@ -50,26 +51,21 @@ Utils.stdinfo("Dropout: {0}".format(Dropout))
 Utils.stdinfo("Regu: {0}".format(Regu))
 LearnRate.Print()
 
-Samples    = 'nomLoose'                                     # 'nomLoose' All samples, else List of Samples needed
-ListSamples = DIClasses.Init(ModelName,Samples,Cuts=True)
+ListSamples = DIClasses.Init(ModelName,Samples,Cuts=True)   # Initiate the setup to import the samples (Cuts string of singal region cuts or True for standard definition)
 
 GPU  = True                                                 # Enable for GPU training
 Mode = 'Slow'                                               # Fast, Slow or Save
 if(Samples != 'nomLoose'):
     Mode = 'Slow'
-Sampler = SampleHandler.SampleHandler(ListSamples,mode=Mode+ModelName)
-print(type(Sampler))
-print(len(tf.config.list_physical_devices('GPU')))
-print(len(tf.config.list_physical_devices('CPU')))
-assert 0 == 1
-Sampler.NormFlag    = False                                     # y axis to one                           
+Sampler = SampleHandler.SampleHandler(ListSamples,mode=Mode+ModelName)  # Initiate the Sampler
+Sampler.NormFlag    = False                                 # y axis normalized to 1                           
 Sampler.valSize = 0.2                                       # Size of the validation sample
 Sampler.Split   = 'EO'                                      # Use EO (even odd splitting)
-Sampler.Plots   = False                                     # either False, LO or NLO            #TODO:Fix trafo problem
+Sampler.Plots   = False                                     # Which sample should be used for the signal (LO or NLO), no plots => False
 if(Type == 'TMVA'):
     Sampler.TrafoFlag    = None                                 
 elif(Type == 'FNN' or 'FNNMulti'):
-    Sampler.TrafoFlag    = 'ZScore'   
+    Sampler.TrafoFlag    = 'ZScore'                         # Transformation of the input features (ZScore => normally distributed)
 if(Sampler.Plots != False):
     Sampler.TrafoFlag   = None
 if(GPU != True):
@@ -85,20 +81,19 @@ Utils.stdwar("Running on {0} device!".format(DeviceTyp))
 
 
 
-DataSet = Sampler.GetANNInput()
-assert 0 == 1
-SavePath   = './ANNOutput/FNN/'                                    # NN output save path
-#BDT Network Hyperparameters
-BDTSetupEven = DIClasses.DIBDTSetup('BDTEven',800,3,5,2,30,8)
+DataSet = Sampler.GetANNInput()                                    # Process the samples using the setup definite previously (ListSamples)
+""" BDT and NN hyperparameters """
+#BDT hyperparameters
+BDTSetupEven = DIClasses.DIBDTSetup('BDTEven',800,3,5,2,30,8)      
 BDTSetupOdd  = DIClasses.DIBDTSetup('BDTOdd',800,3,5,2,30,8)
-
-# Hand optiomalization
 ModelNames = []
-#Neural Network Hyperparameters
+#Neural Network hyperparameters
 ANNSetupEven = DIClasses.DIANNSetup(Type,Epochs,SavePath+ModelName+'Even.h5',Batch,ModelName+'Even',LearnRate=LearnRate,Neurons=Neurons,Dropout=Dropout,Regu=Regu,Optimizer=Opti,
         Winit=Winit,Activ=activation)
 ANNSetupOdd  = DIClasses.DIANNSetup(Type,Epochs,SavePath+ModelName+'Odd.h5',Batch,ModelName+'Odd',LearnRate=LearnRate,Neurons=Neurons,Dropout=Dropout,Regu=Regu,Optimizer=Opti,
         Winit=Winit,Activ=activation)
+
+""" Implemetation of the flags set above"""
 if(PreTrained == False):
     if(BDT != None):
         ModelNames.append(BDTSetupEven.ModelName)

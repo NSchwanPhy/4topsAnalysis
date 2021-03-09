@@ -6,6 +6,7 @@ from Callbacks import *
 from tensorflow.keras import optimizers
 import ROOT
 import os
+import time
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Dropout, GRU
@@ -14,9 +15,22 @@ from tensorflow.keras.regularizers import l2, l1
 from tensorflow.keras import backend as K
 
 def Main(ANNSetup,DataSet,BootStrap=('vali',None)):
+    """
+    Transforms the DataSet to a keras readable version and selectes the correct layer type
+
+    ANNSetup:      Definition of the hyperparameters of the NN
+    DataSet:       Dataset created by the Sampler
+    BootStrap:     Bootstrap setup tuble (Sample,random seed)
+
+    Output:        trained model and Aucs for each training step
+    """
+    
+    # Random seed for the NN cacluations
     np.random.seed(5)
-    train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName)
-    GuardRNN(ANNSetup)
+    tf.compat.v1.set_random_seed(5)
+
+    train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName) # Transform the DataSet into keras readable and aplying bootstrap if needed
+    GuardRNN(ANNSetup)                                                   # Protect the setup from typos
     if(ANNSetup.Architecture == 'LSTM'):
         return LSTMNN(ANNSetup, test, train, DataSet.LVariables)
     elif(ANNSetup.Architecture == 'GRU'):
@@ -24,8 +38,11 @@ def Main(ANNSetup,DataSet,BootStrap=('vali',None)):
 
 
 def LSTMNN(ANNSetup, test, train, VarList):
-    TrainWeights = GetTrainWeights(train.OutTrue,train.Weights)
+    """ Bulding a Keras for the Recurrent Neural Networks with LSTM layers """
 
+    TrainWeights = GetTrainWeights(train.OutTrue,train.Weights) # Transformation of the Monte Carlo weights for training
+
+    #Create the model and pass it the data for Callbacks
     model = Sequential()
     model.X_train = train.Events
     model.Y_train = train.OutTrue
@@ -34,6 +51,7 @@ def LSTMNN(ANNSetup, test, train, VarList):
     model.Y_test  = test.OutTrue
     model.W_test  = test.Weights
 
+    # Building the model from the predefinite configuration (RNN.py)
     LSTMNeurons  = ANNSetup.Neurons[0]
     DenseNeurons = ANNSetup.Neurons[1]
     width = train.Events.shape[1]
@@ -51,9 +69,9 @@ def LSTMNN(ANNSetup, test, train, VarList):
     for j in range(len(DenseNeurons)):
         model.add(Dense(DenseNeurons[j], activation='selu'))
 
-    Opti = GetOpti(ANNSetup.Optimizer,ANNSetup.LearnRate.Lr)
-    lrate = GetLearnRate(ANNSetup.LearnRate,ANNSetup.Epochs)
-    Roc = Histories()
+    Opti = GetOpti(ANNSetup.Optimizer,ANNSetup.LearnRate.Lr)    # Set the optimizer
+    lrate = GetLearnRate(ANNSetup.LearnRate,ANNSetup.Epochs)    # Set a learning rate schedule
+    Roc = Histories()                                           # Definite history for AUC at each training step
     if(lrate == None):
         Lcallbacks = [Roc]
     else:
@@ -62,8 +80,11 @@ def LSTMNN(ANNSetup, test, train, VarList):
 
     model.summary()
     model.compile(optimizer=Opti, loss='binary_crossentropy', metrics=['accuracy'])
+    start = time.clock()                                        # start clock to track training time
     history = model.fit(train.Events, train.OutTrue, sample_weight=TrainWeights, validation_data=(test.Events, test.OutTrue, test.Weights), nb_epoch=int(ANNSetup.Epochs),
                         batch_size=int(ANNSetup.Batch), verbose=2, callbacks=Lcallbacks)
+    end = time.clock()
+    print("The training took {} seconds".format(end-start))
 
     LAuc = Roc.TestAucs
     LTrainAuc = Roc.TrainAucs
@@ -106,6 +127,8 @@ def GRUNN(ANNSetup, test, train, VarList):              #TODO: revise this!
 
 
 def GetOpti(Optimizer,LearnRate):
+    """ Set optimizer as definite in the config """
+
     if(Optimizer == 'SGD'):
         Opti = optimizers.SGD(lr=LearnRate, momentum=0.0, nesterov=False)
     elif(Optimizer == 'Rmsprop'):
@@ -117,6 +140,8 @@ def GetOpti(Optimizer,LearnRate):
     return Opti
 
 def GetLearnRate(DILr,Epochs):
+    """ Using different Callbacks (definite in Callbacks.py) the learning rate schedule is set"""
+
     if(DILr.mode == 'poly'):
         ScheduelLr = PolynomialDecay(maxEpochs=DILr.StepSize,initAlpha=DILr.Lr,power=DILr.factor)
         ScheduelLr.plot(range(1,int(Epochs)+1))
@@ -135,7 +160,7 @@ def GetLearnRate(DILr,Epochs):
 def GetTrainWeights(Labels,Weights):
     """ In some cases event weights are given by Monte Carlo generators, and may turn out to be overallvery small or large number.  To avoid artifacts due to this use renormalised weights.
         The  event  weights  are  renormalised such  that  both,  the  sum  of  all  weighted  signal  training  events  equals  the  sum  of  all  weights  ofthe background training events
-        [from tmva guide] """
+        [https://arxiv.org/pdf/physics/0703039.pdf] """
     Weights = np.where(Weights > 0, Weights, 0)                 #Setting negative weights to zero for training
     ReferenceLength = len(Labels[Labels == 0])
     for Class in np.unique(Labels):
@@ -145,39 +170,6 @@ def GetTrainWeights(Labels,Weights):
 
     return Weights
 
-
-
-
-class roc_callback(Callback):
-    def __init__(self,training_data,validation_data):
-        self.x = training_data[0]
-        self.y = training_data[1]
-        self.x_val = validation_data[0]
-        self.y_val = validation_data[1]
-
-
-    def on_train_begin(self, logs={}):
-        return
-
-    def on_train_end(self, logs={}):
-        return
-
-    def on_epoch_begin(self, epoch, logs={}):
-        return
-
-    def on_epoch_end(self, epoch, logs={}):
-        y_pred = self.model.predict(self.x)
-        roc = roc_auc_score(self.y, y_pred)
-        y_pred_val = self.model.predict(self.x_val)
-        roc_val = roc_auc_score(self.y_val, y_pred_val)
-        print('\rroc-auc: {} - roc-auc_val: {} \n'.format(round(roc,4),round(roc_val,4)))
-        return
-
-    def on_batch_begin(self, batch, logs={}):
-        return
-
-    def on_batch_end(self, batch, logs={}):
-        return
 
 
 

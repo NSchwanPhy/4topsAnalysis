@@ -122,7 +122,9 @@ class PolynomialDecay(LearningRateDecay):
 
 
 class CyclicLR(Callback):
-    """This callback implements a cyclical learning rate policy (CLR).
+    """
+    autor: Adrian Rosebrock
+    This callback implements a cyclical learning rate policy (CLR).
     The method cycles the learning rate between two boundaries with
     some constant frequency, as detailed in this paper (https://arxiv.org/abs/1506.01186).
     The amplitude of the cycle can be scaled on a per-iteration or 
