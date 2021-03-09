@@ -5,7 +5,8 @@ import scipy
 import ScorePlots
 import re, sys, os
 from DIClasses import DISample
-from sklearn.metrics import roc_curve, roc_auc_score, accuracy_score
+from sklearn.metrics import roc_curve
+from Utils import roc_auc_score
 from Utils import stderr, stdwar, stdinfo, dlen, ContainsList
 from root_numpy import fill_hist
 

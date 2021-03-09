@@ -4,7 +4,7 @@ from math import sqrt
 
 class Trafo:
 
-    def __init__(self,TrafoFlag,Means,Stds):
+    def __init__(self,TrafoFlag):
         self.TrafoFlag = TrafoFlag
         self.Means = []
         self.Stds = []
@@ -17,6 +17,9 @@ class Trafo:
                 for j in range(len(Events)):
                     Events[j][i] = float(Events[j][i])
                     Events[j][i] = (Events[j][i] - min)/(max - min) - 0.5
+
+
+
         elif(self.TrafoFlag == 'ZScoreLSTM'):
             for iVar in range(Events.shape[1]):                                                  #Loop over Variable
                 if(Sampletype == 'train'):                                                #Use same var and mean for all sets
@@ -28,6 +31,8 @@ class Trafo:
                             if(Events[Event][iVar][iSeq] != -3.4*pow(10,38)):
                                 Events[Event][iVar][iSeq] = float(Events[Event][iVar][iSeq])
                                 Events[Event][iVar][iSeq] = (Events[Event][iVar][iSeq] - self.Means[iVar])/sqrt(self.Stds[iVar])
+
+
         elif(self.TrafoFlag == 'ZScore'):
             for iVar in range(Events.shape[1]):                                                  #Loop over Variable
                 if(Sampletype == 'train'):
@@ -43,23 +48,52 @@ class Trafo:
                 elif(variance != 0):
                     for iBatch in range(len(Events)):                                                #Loop over Batch
                         Events[iBatch][iVar] = float(Events[iBatch][iVar])
-                        Events[iBatch][iVar] = (Events[iBatch][iVar] - mean)/sqrt(variance)            
+                        Events[iBatch][iVar] = (Events[iBatch][iVar] - mean)/sqrt(variance)
             
         elif(self.TrafoFlag != None):
             Utils.stdwar("This norm is not in implemented!")
             assert 0 == 1
 
+        if(np.ndim(Events) == 3):                                                    # events, t, Var (the ordering was incorrect up until now)
+            Events = np.swapaxes(Events,1,2)
+        Events = np.where(Events != -3.4*pow(10,38), Events, 0)                      # replacing all padded element with 0
+
         return Events
+
+
 
     def GetMinMax(self,Arr,col):
         return Arr.min(0)[col], Arr.max(0)[col]
 
 
-    def TrafoDataSet(self,Sample,key):
-        #TODO: use the DataSet function OneSample (does it work?). Transform usw up date dataset
 
 
-        AllEvents = self.Trafo(AllEvents,key)                                           # Setting the transformation to norm distributions
-        if(np.ndim(AllEvents) == 3):                                                    # events, t, Var
-            AllEvents = np.swapaxes(AllEvents,1,2)
-        AllEvents = np.where(AllEvents != -3.4*pow(10,38), AllEvents, 0)                # replacing all padded element with 0
+
+
+
+
+
+
+
+
+
+# def Transform(Arr,kind):
+    
+#     if(kind == 'ZScore'):  
+#         print("enter")           
+#         scaler = StandardScaler(with_mean=True, with_std=True)
+#         if(np.ndim(Arr) == 1):
+#             Arr = Arr.reshape(-1,1)
+#         scaler.fit(Arr)
+#         Arr = scaler.transform(Arr)
+#         Arr = Arr.ravel()
+        
+#     if(kind == 'MinMax'):
+#         scaler = MinMaxScaler()
+#         if(np.ndim(Arr) == 1):
+#             Arr = Arr.reshape(-1,1)
+#         scaler.fit(Arr)
+#         Arr = scaler.transform(Arr)
+#         Arr = Arr.ravel()
+
+#     return Arr

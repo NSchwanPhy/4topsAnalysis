@@ -11,6 +11,8 @@ import EvalRNN
 import numpy as np
 import os
 import DIClasses
+import tensorflow as tf
+import Utils
 
 """ Analysis Setup """
 np.random.seed(15)                  # Random seed used for splitting

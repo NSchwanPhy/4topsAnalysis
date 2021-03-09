@@ -2,7 +2,7 @@ import numpy as np
 import ROOT
 from root_numpy import fill_hist
 from tensorflow.keras.callbacks import *
-from sklearn.metrics import roc_auc_score
+from Utils import roc_auc_score
 
 class Histories(Callback):
     def on_train_begin(self, logs={}):
@@ -42,6 +42,7 @@ class Histories(Callback):
         # self.TestLosses.append(logs.get('val_loss'))
             y_pred = self.model.predict(self.model.X_test)
             if(y_pred.shape[1] == 1):
+                y_pred = y_pred.flatten()
                 self.TestAucs.append(roc_auc_score(self.model.Y_test, y_pred, sample_weight=self.model.W_test))
             else:
                 self.TestAucs.append(roc_auc_score(self.model.Y_test, y_pred[:,0], sample_weight=self.model.W_test))
@@ -49,14 +50,15 @@ class Histories(Callback):
         # # Evalute Loss and Auc for train
         # self.TrainLosses.append(logs.get('loss'))
             y_pred_Train = self.model.predict(self.model.X_train)
-            if(y_pred.shape[1] == 1):
+            if(y_pred_Train.shape[1] == 1):
+                y_pred_Train = y_pred_Train.flatten()
                 self.TrainAucs.append(roc_auc_score(self.model.Y_train, y_pred_Train, sample_weight=self.model.W_train))
             else:
                 self.TrainAucs.append(roc_auc_score(self.model.Y_train, y_pred_Train[:,0], sample_weight=self.model.W_train))
 
-        # #Save the Score if the Auc is the current highest
-        # if(self.TestAucs[-1] == max(self.TestAucs)):
-        #     self.MaxPre = [y_pred,y_pred_Train]
+            #Save the Score if the Auc is the current highest
+            if(self.TestAucs[-1] == max(self.TestAucs)):
+                self.MaxPre = [y_pred,y_pred_Train]
         
 
             return
@@ -68,6 +70,9 @@ class Histories(Callback):
         return
 
         
+
+
+
 
 class LearningRateDecay:
     def plot(self, epochs, title="Learning Rate Schedule"):

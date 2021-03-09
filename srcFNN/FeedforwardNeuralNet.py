@@ -46,6 +46,7 @@ def Main(ANNSetup,DataSet,BDTSetup=None,BootStrap=('vali',None)):
 
     # pass the Data to the correct API
     if(ANNSetup.Architecture == 'TMVA'):
+        train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName,DoTrafo=False)    #In Utils
         dataloader, factory, output = Init(train, test, DataSet.LVariables)
         TMVAFNN(ANNSetup, dataloader, factory)
         if(BDTSetup != None):
@@ -54,13 +55,18 @@ def Main(ANNSetup,DataSet,BDTSetup=None,BootStrap=('vali',None)):
         Finialize(factory, output)
         #GetRocs(factory, dataloader,"FNN19Even")
 
-
+    # Direct keras implementation
     elif(ANNSetup.Architecture == 'FNN'):
+        train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName,DoTrafo=True)
+        ANNSetup.InputDim = len(DataSet.LVariables)
         if(BDTSetup != None):
             stdwar("BDT is only supported using TMVA")
         return FNN(ANNSetup, test, train)
 
+    # multi classifier (direct keras)
     elif(ANNSetup.Architecture == 'FNNMulti'):
+        train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName,DoTrafo=True)
+        ANNSetup.InputDim = len(DataSet.LVariables)
         if(BDTSetup != None):
             stdwar("BDT is only supported using TMVA")
         Model, Roc = MultiFNN(ANNSetup, test, train)
@@ -70,6 +76,7 @@ def Main(ANNSetup,DataSet,BDTSetup=None,BootStrap=('vali',None)):
         return Model, Roc
 
 
+""" ------------------------------------------------------TMVA-----------------------------------------------------------------------------------"""
 def Init(train,test,VarList):
     """ Implementation for TMVA Neural Network training """
     ROOT.TMVA.Tools.Instance()
@@ -154,6 +161,27 @@ def GetRocs(factory, dataloader,name):
 
     return
 
+
+
+def CrossCheck(dataloader):
+
+    DataSet = dataloader.GetDataSetInfo().GetDataSet()                
+    EventCollection = DataSet.GetEventCollection()
+    BkgW, SigW = np.zeros([]), np.zeros([])
+    Bkg, Sig = np.zeros([]), np.zeros([])
+    for Event in EventCollection:
+        if(Event.GetClass() == 1):
+            Bkg  = np.append(Bkg, Event.GetValue(1)) 
+            BkgW = np.append(BkgW, Event.GetWeight())
+        elif(Event.GetClass() == 0):
+            Sig = np.append(Sig, Event.GetValue(1))
+            SigW = np.append(SigW, Event.GetWeight())
+    PlotService.VarCrossCheck(Sig,Bkg,SigW,BkgW,'njets',-6,4,10)
+
+    return
+
+
+""" ---------------------------------------------- KERAS ---------------------------------------------------------------- """
 
 def FNN(ANNSetup, test, train):
     """ Bulding a Keras for the Feedforward Neural Networks """
@@ -269,20 +297,7 @@ def MultiFNN(ANNSetup, test, train):
 def CrossCheck(dataloader):
     """ make a njets plots to check data gets imported in the right way """
 
-    DataSet = dataloader.GetDataSetInfo().GetDataSet()                
-    EventCollection = DataSet.GetEventCollection()
-    BkgW, SigW = np.zeros([]), np.zeros([])
-    Bkg, Sig = np.zeros([]), np.zeros([])
-    for Event in EventCollection:
-        if(Event.GetClass() == 1):
-            Bkg  = np.append(Bkg, Event.GetValue(1)) 
-            BkgW = np.append(BkgW, Event.GetWeight())
-        elif(Event.GetClass() == 0):
-            Sig = np.append(Sig, Event.GetValue(1))
-            SigW = np.append(SigW, Event.GetWeight())
-    PlotService.VarCrossCheck(Sig,Bkg,SigW,BkgW,'njets',-6,4,10)
 
-    return
 
 
 def GetOpti(Optimizer,LearnRate):
@@ -379,6 +394,15 @@ def BuildModel(ANNSetup,model):
                 model.add(LeakyReLU(alpha=ANNSetup.Activ))
 
     return model
+
+
+
+def FastAUC(model):
+    
+    train_pred = model.predict(model.X_train)
+    test_pred  = model.predict(model.X_test)
+    return roc_auc_score(model.Y_train,train_pred), roc_auc_score(model.Y_test, test_pred)
+
 
 
 

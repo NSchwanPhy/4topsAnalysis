@@ -14,6 +14,12 @@ from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.regularizers import l2, l1
 from tensorflow.keras import backend as K
 
+import tensorflow as tf
+
+NUM_THREADS=1
+tf.config.threading.set_inter_op_parallelism_threads(NUM_THREADS)
+tf.config.threading.set_intra_op_parallelism_threads(NUM_THREADS)
+
 def Main(ANNSetup,DataSet,BootStrap=('vali',None)):
     """
     Transforms the DataSet to a keras readable version and selectes the correct layer type

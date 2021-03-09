@@ -2,12 +2,12 @@ import PlotService
 import SampleHandler
 import numpy as np
 from DIClasses import Init, DISample
-from Utils import stderr, stdwar, stdinfo, Transform
-from sklearn.metrics import roc_auc_score
+from Utils import stderr, stdwar, stdinfo
+from Utils import roc_auc_score
 from array import array
 from math import log, sqrt, isnan, log
 from root_numpy.tmva import evaluate_reader
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 import ROOT
 
 class EvalRNN:

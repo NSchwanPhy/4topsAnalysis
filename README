@@ -1,8 +1,8 @@
 Niklas Schwan 13.12.2020
 
-/*******************************************\
-/*** tttt analysis using Neural Networks ***\
-/*******************************************\
+/*********************************************\
+/*** tttt analysis ( Deep Neural Networks) ***\
+/*********************************************\
 
 I developed this small framework during my master thesis to analysis the four-top-quark signiture simulated in the ATLAS detector. Details of the analysis strategy and
 the simulation setup for the datasets can be found in my master thesis (http://cds.cern.ch/record/2751676).
@@ -34,9 +34,8 @@ FNN.py
 The important flags are:
 Samples			Use 'nomLoose' if you want to use all samples in the anaylsis else give it a list (which samples are implemented you can see in DIClasses.py)
 ModelName		Name of the model also the flag that is used to find which variables should be used in the Neural Network
-BDT			BDT model Name if None no Bdt is trained (can only be used if the "Type" is TMVA
-EvalFlag		I would recomment FALSE. Initially I evaluted the model directly after I trained them but at some point I decided to evaluate it later after I saved the model. 
-			Therefore better use EvalFromSave.py. If you want to use the direct Eval first check that everything is working how it should be
+BDT			BDT model Name if None no Bdt is trained (can only be used if the "Type" is TMVA)
+EvalFlag		Online evaluation of the NN you can also load a save model and use the script "Evalfromsave.py"
 Odd			As you may have read in my thesis I train two Neural Networks one on the odd and one on the even backgrounds. If this flag is false only the Even NN is trained
 			this saves time but allways train both when you optimize
 PreTrained		This is a flag from the Evaluation script if the evaluation was done before the predictions on the test dataset are saved and can be reused by setting this flag to True
@@ -56,7 +55,7 @@ Regu			l2 regularization (only first layer)
 Bootstrap		tuple first entry on which sample should bootstrap be applied? second the random seed used for bootstrapping if none no bootstrapping is performed
 LearnRate		The different learning rate schedules (You can find the used Callbacks in Callbacks.py in folder srcGeneral)
 
-GPU			If false CPUs will be used. I think the conda env that I send you does not support GPU training you need to reinstall tensorflow2.X there was a bug in the version I gave you I think
+GPU			If false CPUs will be used. You might need to rebuild the anaconda enveriment for the gpu in your system and also for the baf system
 Mode			If Slow the dataSets will be loaded from ROOTFiles. If Save datasets loaded from root files and stored as scimmed Numpy files. Fast the scimmed numpy files will be used
 NormFlag		Should the plots the normalized too total Yield == one can be helpful when looking at shapes
 valSize			The fraction of the whole dataset that is speared for the validation set
@@ -74,6 +73,15 @@ Very similar to the flags in FNN.py main differences are:
 3. Regu == l1 regularization term
 4. Dropout can be applied to all layers
 5. Sampler.SequenceLength how high is the maximum number of particles of the same type
+
+
+-----
+General
+-----
+
+If you want to plot more than the 4-5 plot types that are produced per default have a look at PlotService.py.
+The folder Plotting was a project where I started to make everything more readable but I did not finish it during my masters - anyways you might find it helpful.
+I did go through the main function they should work correctly. If a function does not let me know
 
 
 

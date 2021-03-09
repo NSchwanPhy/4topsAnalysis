@@ -1,6 +1,9 @@
 import numpy as np
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.utils import resample
+import Transform
+import PlotService
+import DIClasses
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
@@ -35,6 +38,10 @@ def dlen(obj):
 
     return Length
 
+
+
+
+
 def ContainsList(Arr):
     """ If array containce list True if not Flase """
     Flag = False
@@ -68,26 +75,6 @@ def HasSequence(Arr):
             return True
     return False
 
-def Transform(Arr,kind):
-    
-    if(kind == 'ZScore'):  
-        print("enter")           
-        scaler = StandardScaler(with_mean=True, with_std=True)
-        if(np.ndim(Arr) == 1):
-            Arr = Arr.reshape(-1,1)
-        scaler.fit(Arr)
-        Arr = scaler.transform(Arr)
-        Arr = Arr.ravel()
-        
-    if(kind == 'MinMax'):
-        scaler = MinMaxScaler()
-        if(np.ndim(Arr) == 1):
-            Arr = Arr.reshape(-1,1)
-        scaler.fit(Arr)
-        Arr = scaler.transform(Arr)
-        Arr = Arr.ravel()
-
-    return Arr
 
 def ConvertArr(Arr,SequenceLength,PadNum=-3.4*pow(10,38)):
     """ Converts the input array into an 3dim array with constant Sequence length (using padding)"""
@@ -126,11 +113,40 @@ def CheckSame(Arr1,Arr2):
             #stdinfo("They are the same")
             return True
 
-def GetSamples(SampleAndSeed,DataSet,Name):
-    Sample = SampleAndSeed[0]
-    Seed   = SampleAndSeed[1]
+def GetSamples(SampleAndSeed,DataSet,Name,DoTrafo=False):
+
+    #Transform, Reodering, and adjust padding
     train, test = DataSet.GetInput(Name)
     vali = DataSet.vali
+
+    if(DoTrafo==True):
+        if(np.ndim(train.Events) == 2):
+            TrafoFlag = 'ZScore'
+        elif(np.ndim(train.Events) == 3):
+            TrafoFlag = 'ZScoreLSTM'
+        else:
+            print("Event array wrong dim")
+            assert 0 == 1
+        Trafo = Transform.Trafo(TrafoFlag)
+        train.Events = Trafo.DefaultTrafo(train.Events,'train')
+        test.Events = Trafo.DefaultTrafo(test.Events,'test')
+        vali.Events = Trafo.DefaultTrafo(vali.Events,'vali')
+        DataSet = DIClasses.DIDataSet(train,test,vali)
+        print(np.mean(test.Events[:,1]),np.var(test.Events[:,1]))
+
+        # Comment in to check trafo + comment out padding replacement in Trafo 
+        # PlotService.VarHist(DataSet, 'NLO',"./plots/","All", "lep_0_pt", r"Trafo(p_{T}(\ell)^{\text{leading}})",-5,5,10,Norm=False)
+        # PlotService.VarHist(DataSet, 'NLO',"./plots/","All", "nJets", "Trafo(Jet multiplicity)",-5,5,10,Norm=False)
+        # assert 0 == 1 
+    
+    else:
+        train.Events = np.where(train.Events != -3.4*pow(10,38), train.Events, 0)
+        test.Events = np.where(test.Events != -3.4*pow(10,38), test.Events, 0)
+        vali.Events = np.where(vali.Events != -3.4*pow(10,38), vali.Events, 0)
+
+    #BootStrap
+    Sample = SampleAndSeed[0]
+    Seed   = SampleAndSeed[1]
     if(Seed != None):
         Samples = {'train':train,'test':test,'vali':vali}
         Sample = Samples[Sample]
@@ -142,6 +158,61 @@ def GetSamples(SampleAndSeed,DataSet,Name):
         Sample.OutTrue = np.array(Comb[:,-1], dtype=int)
 
     return train, test, vali
+
+
+
+
+
+
+
+
+    # ------------------------------------ AUC -------------------------------------------------------
+
+def roc_auc_score(classes : np.ndarray,
+               predictions : np.ndarray,
+               sample_weight : np.ndarray = None) -> float:
+    """
+    Calculating ROC AUC score as the probability of correct ordering
+    """
+
+    if sample_weight is None:
+        sample_weight = np.ones_like(predictions)
+
+    assert len(classes) == len(predictions) == len(sample_weight)
+    assert classes.ndim == predictions.ndim == sample_weight.ndim == 1
+    class0, class1 = sorted(np.unique(classes))
+
+    data = np.empty(
+            shape=len(classes),
+            dtype=[('c', classes.dtype),
+                   ('p', predictions.dtype),
+                   ('w', sample_weight.dtype)]
+        )
+    data['c'], data['p'], data['w'] = classes, predictions, sample_weight
+
+    data = data[np.argsort(data['c'])]
+    data = data[np.argsort(data['p'], kind='mergesort')] # here we're relying on stability as we need class orders preserved
+
+    correction = 0.
+    # mask1 - bool mask to highlight collision areas
+    # mask2 - bool mask with collision areas' start points
+    mask1 = np.empty(len(data), dtype=bool)
+    mask2 = np.empty(len(data), dtype=bool)
+    mask1[0] = mask2[-1] = False
+    mask1[1:] = data['p'][1:] == data['p'][:-1]
+    if mask1.any():
+        mask2[:-1] = ~mask1[:-1] & mask1[1:]
+        mask1[:-1] |= mask1[1:]
+        ids, = mask2.nonzero()
+        correction = sum([((dsplit['c'] == class0) * dsplit['w'] * msplit).sum() * 
+                          ((dsplit['c'] == class1) * dsplit['w'] * msplit).sum()
+                          for dsplit, msplit in zip(np.split(data, ids), np.split(mask1, ids))]) * 0.5
+ 
+    sample_weight_0 = data['w'] * (data['c'] == class0)
+    sample_weight_1 = data['w'] * (data['c'] == class1)
+    cumsum_0 = sample_weight_0.cumsum()
+
+    return ((cumsum_0 * sample_weight_1).sum() - correction) / (sample_weight_1.sum() * cumsum_0[-1])
 
 
 

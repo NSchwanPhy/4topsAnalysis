@@ -2,7 +2,6 @@ import sys
 sys.path.insert(1,'./srcFNN')
 sys.path.insert(1,'./srcGeneral')
 
-from tensorflow.python.client import device_lib
 import tensorflow as tf
 import SampleHandler
 import FeedforwardNeuralNet as FNN
@@ -53,8 +52,8 @@ LearnRate.Print()
 
 ListSamples = DIClasses.Init(ModelName,Samples,Cuts=True)   # Initiate the setup to import the samples (Cuts string of singal region cuts or True for standard definition)
 
-GPU  = True                                                 # Enable for GPU training
-Mode = 'Slow'                                               # Fast, Slow or Save
+GPU  = False                                                # Enable GPU training
+Mode = 'Fast'                                               # Fast, Slow or Save
 if(Samples != 'nomLoose'):
     Mode = 'Slow'
 Sampler = SampleHandler.SampleHandler(ListSamples,mode=Mode+ModelName)  # Initiate the Sampler
@@ -71,10 +70,13 @@ if(Sampler.Plots != False):
 if(GPU != True):
     tf.config.optimizer.set_jit(True)
     os.environ['CUDA_VISIBLE_DEVICES']='-1'
-DeviceTyp = device_lib.list_local_devices()
-DeviceTyp = str(DeviceTyp[0])
-DeviceTyp = DeviceTyp[DeviceTyp.find("device_type:")+14:DeviceTyp.find("device_type:")+17]
-Utils.stdwar("Running on {0} device!".format(DeviceTyp))
+DeviceTyp = tf.config.experimental.list_physical_devices()
+if('GPU' in str(DeviceTyp)):
+    Utils.stdwar("GPU training enabled!")
+else:
+    Utils.stdwar("CPU training!")
+
+
 
 
 
