@@ -2,7 +2,6 @@ import sys
 sys.path.insert(1,'./srcFNN')
 sys.path.insert(1,'./srcGeneral')
 
-from tensorflow.python.client import device_lib
 import tensorflow as tf
 import SampleHandler
 import FeedforwardNeuralNet as FNN
@@ -17,7 +16,7 @@ np.random.seed(15)                  #Random seed used for splitting
 #Parameters
 ModelName  = 'FNN18'                # Set of Variables
 BDT        = None                   # BDT model Name if None no Bdt is trained (TMVA only)
-EvalFlag   = False                  # Should the models be evaluated? 
+EvalFlag   = True                  # Should the models be evaluated? 
 Odd        = False                  # Should the Odd combination be trained?
 PreTrained = False                  # Was the Model allready evaluated before? 
 
@@ -53,32 +52,26 @@ LearnRate.Print()
 Samples    = 'nomLoose'                                     # 'nomLoose' All samples, else List of Samples needed
 ListSamples = DIClasses.Init(ModelName,Samples,Cuts=True)
 
-GPU  = True                                                 # Enable for GPU training
-Mode = 'Slow'                                               # Fast, Slow or Save
+GPU  = False                                                # Enable GPU training
+Mode = 'Fast'                                               # Fast, Slow or Save
 if(Samples != 'nomLoose'):
     Mode = 'Slow'
 Sampler = SampleHandler.SampleHandler(ListSamples,mode=Mode+ModelName)
-print(type(Sampler))
-print(len(tf.config.list_physical_devices('GPU')))
-print(len(tf.config.list_physical_devices('CPU')))
-assert 0 == 1
 Sampler.NormFlag    = False                                     # y axis to one                           
 Sampler.valSize = 0.2                                       # Size of the validation sample
 Sampler.Split   = 'EO'                                      # Use EO (even odd splitting)
-Sampler.Plots   = False                                     # either False, LO or NLO            #TODO:Fix trafo problem
-if(Type == 'TMVA'):
-    Sampler.TrafoFlag    = None                                 
-elif(Type == 'FNN' or 'FNNMulti'):
-    Sampler.TrafoFlag    = 'ZScore'   
-if(Sampler.Plots != False):
-    Sampler.TrafoFlag   = None
+Sampler.Plots   = False                                     # either False, 'LO' or 'NLO's         
+
 if(GPU != True):
     tf.config.optimizer.set_jit(True)
     os.environ['CUDA_VISIBLE_DEVICES']='-1'
-DeviceTyp = device_lib.list_local_devices()
-DeviceTyp = str(DeviceTyp[0])
-DeviceTyp = DeviceTyp[DeviceTyp.find("device_type:")+14:DeviceTyp.find("device_type:")+17]
-Utils.stdwar("Running on {0} device!".format(DeviceTyp))
+DeviceTyp = tf.config.experimental.list_physical_devices()
+if('GPU' in str(DeviceTyp)):
+    Utils.stdwar("GPU training enabled!")
+else:
+    Utils.stdwar("CPU training!")
+
+
 
 
 
@@ -86,7 +79,6 @@ Utils.stdwar("Running on {0} device!".format(DeviceTyp))
 
 
 DataSet = Sampler.GetANNInput()
-assert 0 == 1
 SavePath   = './ANNOutput/FNN/'                                    # NN output save path
 #BDT Network Hyperparameters
 BDTSetupEven = DIClasses.DIBDTSetup('BDTEven',800,3,5,2,30,8)

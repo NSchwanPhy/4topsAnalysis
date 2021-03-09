@@ -5,8 +5,7 @@ import EvalMulti
 import os
 from PlotService import VarHist
 from tensorflow.keras.models import load_model
-import ROOT
-from sklearn.metrics import roc_auc_score
+from Utils import roc_auc_score
 
 class EvalFNN:
 

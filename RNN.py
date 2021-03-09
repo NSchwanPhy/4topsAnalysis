@@ -8,27 +8,28 @@ import EvalRNN
 import numpy as np
 import os
 import DIClasses
+import tensorflow as tf
+import Utils
 
 np.random.seed(15)
-""" Attention! The Signal Sample has to be first in the List of Samples i.e. the first in the Input Array to the NN else the inverse of the AUC is calculated """
 #Parameters
 Samples    = 'nomLoose'                     # 'nomLoose' All samples, else List of Samples needed
 ModelName   = 'LSTM'
-EvalFlag    = False                           # Should the models be evaluated?
-Odd         = True                            # Should the Odd combination be trained?
+EvalFlag    = True                           # Should the models be evaluated?
+Odd         = False                            # Should the Odd combination be trained?
 PreTrained  = False
 SavePath    = './ANNOutput/RNN/' 
 
 LayerType = 'LSTM'
 Optimizer='Adam'
-Epochs  = 10
-Batch   = 500
-Neurons = [[64,1],[]]                 # Last Layer needs to be have 1 Neuron
+Epochs  = 1
+Batch   = 2000
+Neurons = [[1,1],[]]                 # Last Layer needs to be have 1 Neuron
 Dropout = [0]
 Regu = 0.001
 Bootstrap = ('test',None)
 Dropout.extend([0] * (len(Neurons[0])-len(Dropout)))
-LearnRate  = DIClasses.DILrSchedule('poly',0.004,factor=2,StepSize=Epochs)
+LearnRate  = DIClasses.DILrSchedule('poly',0.001,factor=2,StepSize=Epochs)
 #LearnRate = DIClasses.DILrSchedule('normal',0.001)
 
 print("LayerType: {}".format(LayerType))
@@ -42,7 +43,8 @@ LearnRate.Print()
 # Basic Sample informations
 ListSamples = DIClasses.Init(ModelName,Samples,Cuts=True)
 # Data Preparation
-Mode = 'Save'
+GPU  = False                                                # Enable GPU training
+Mode = 'Fast'
 if(Samples != 'nomLoose'):
     Mode = 'Save'
 Sampler = SampleHandler.SampleHandler(ListSamples,mode=Mode+ModelName)
@@ -51,7 +53,16 @@ Sampler.valSize = 0.2                                     # Size of the validati
 Sampler.Split   = 'EO'                                    # Use EO (even odd splitting)
 Sampler.Scale   = 'ZScoreLSTM'                            # Kind of Norm use ZScoreLTSM
 Sampler.SequenceLength  = 7                               # Length of the Sequence of a Bach (at the momement this controlls amount of jets)
-Sampler.Plots = 'NLO'                                     # Should the plots be done?
+Sampler.Plots = False                                     # Should the plots be done?
+
+if(GPU != True):
+    tf.config.optimizer.set_jit(True)
+    os.environ['CUDA_VISIBLE_DEVICES']='-1'
+DeviceTyp = tf.config.experimental.list_physical_devices()
+if('GPU' in str(DeviceTyp)):
+    Utils.stdwar("GPU training enabled!")
+else:
+    Utils.stdwar("CPU training!")
 
 
 

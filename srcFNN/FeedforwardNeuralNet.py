@@ -25,27 +25,35 @@ from tensorflow.keras.regularizers import l2, l1
 from tensorflow.keras import backend as K
 
 def Main(ANNSetup,DataSet,BDTSetup=None,BootStrap=('vali',None)):
-    np.random.seed(5)
+    #Fix Seeds to ensure that the random weight init stays the same for each training
+    np.random.seed(5)                                       
     tf.compat.v1.set_random_seed(5)
-    train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName)
-    ANNSetup.InputDim = len(DataSet.LVariables)
-    GuardFNN(ANNSetup)
+    
+    GuardFNN(ANNSetup)                                                      # Ensure that the NN are not to large (just some conventions for the baf)
+
+    #Training using TMVA
     if(ANNSetup.Architecture == 'TMVA'):
+        train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName,DoTrafo=False)    #In Utils
         dataloader, factory, output = Init(train, test, DataSet.LVariables)
-#        TMVAFNN(ANNSetup, dataloader, factory)
+        TMVAFNN(ANNSetup, dataloader, factory)
         if(BDTSetup != None):
             BDT(BDTSetup, dataloader, factory)
             #GetRocs(factory, dataloader,"BDTEven")
         Finialize(factory, output)
         #GetRocs(factory, dataloader,"FNN19Even")
 
-
+    # Direct keras implementation
     elif(ANNSetup.Architecture == 'FNN'):
+        train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName,DoTrafo=True)
+        ANNSetup.InputDim = len(DataSet.LVariables)
         if(BDTSetup != None):
             stdwar("BDT is only supported using TMVA")
         return FNN(ANNSetup, test, train)
 
+    # multi classifier (direct keras)
     elif(ANNSetup.Architecture == 'FNNMulti'):
+        train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName,DoTrafo=True)
+        ANNSetup.InputDim = len(DataSet.LVariables)
         if(BDTSetup != None):
             stdwar("BDT is only supported using TMVA")
         Model, Roc = MultiFNN(ANNSetup, test, train)
@@ -55,6 +63,7 @@ def Main(ANNSetup,DataSet,BDTSetup=None,BootStrap=('vali',None)):
         return Model, Roc
 
 
+""" ------------------------------------------------------TMVA-----------------------------------------------------------------------------------"""
 def Init(train,test,VarList):
     # Setup TMVA
     ROOT.TMVA.Tools.Instance()
@@ -117,6 +126,7 @@ def Finialize(factory, output):
     return
 
 def GetRocs(factory, dataloader,name):
+    #This function still needs some fixing TODO
     print(name)
     f = ROOT.TFile('/gpfs/share/home/s6nsschw/Data/NNOutput.root')
     TH_Train_S = f.Get("/dataset/Method_"+name+"/"+name+"/MVA_"+name+"_Train_S")
@@ -134,6 +144,27 @@ def GetRocs(factory, dataloader,name):
 
     return
 
+
+
+def CrossCheck(dataloader):
+
+    DataSet = dataloader.GetDataSetInfo().GetDataSet()                
+    EventCollection = DataSet.GetEventCollection()
+    BkgW, SigW = np.zeros([]), np.zeros([])
+    Bkg, Sig = np.zeros([]), np.zeros([])
+    for Event in EventCollection:
+        if(Event.GetClass() == 1):
+            Bkg  = np.append(Bkg, Event.GetValue(1)) 
+            BkgW = np.append(BkgW, Event.GetWeight())
+        elif(Event.GetClass() == 0):
+            Sig = np.append(Sig, Event.GetValue(1))
+            SigW = np.append(SigW, Event.GetWeight())
+    PlotService.VarCrossCheck(Sig,Bkg,SigW,BkgW,'njets',-6,4,10)
+
+    return
+
+
+""" ---------------------------------------------- KERAS ---------------------------------------------------------------- """
 
 def FNN(ANNSetup, test, train):
     #ClassWeights = GetClassWeights(train.OutTrue,train.Weights)
@@ -183,11 +214,11 @@ def FNN(ANNSetup, test, train):
     return model, Roc
 
 
-def FastAUC(model):
-    
-    train_pred = model.predict(model.X_train)
-    test_pred  = model.predict(model.X_test)
-    return roc_auc_score(model.Y_train,train_pred), roc_auc_score(model.Y_test, test_pred)
+
+
+
+
+
 
 
 def MultiFNN(ANNSetup, test, train):
@@ -235,22 +266,8 @@ def MultiFNN(ANNSetup, test, train):
 
 
 
-def CrossCheck(dataloader):
 
-    DataSet = dataloader.GetDataSetInfo().GetDataSet()                
-    EventCollection = DataSet.GetEventCollection()
-    BkgW, SigW = np.zeros([]), np.zeros([])
-    Bkg, Sig = np.zeros([]), np.zeros([])
-    for Event in EventCollection:
-        if(Event.GetClass() == 1):
-            Bkg  = np.append(Bkg, Event.GetValue(1)) 
-            BkgW = np.append(BkgW, Event.GetWeight())
-        elif(Event.GetClass() == 0):
-            Sig = np.append(Sig, Event.GetValue(1))
-            SigW = np.append(SigW, Event.GetWeight())
-    PlotService.VarCrossCheck(Sig,Bkg,SigW,BkgW,'njets',-6,4,10)
 
-    return
 
 def GetOpti(Optimizer,LearnRate):
     if(Optimizer == 'SGD'):
@@ -337,6 +354,15 @@ def BuildModel(ANNSetup,model):
                 model.add(LeakyReLU(alpha=ANNSetup.Activ))
 
     return model
+
+
+
+def FastAUC(model):
+    
+    train_pred = model.predict(model.X_train)
+    test_pred  = model.predict(model.X_test)
+    return roc_auc_score(model.Y_train,train_pred), roc_auc_score(model.Y_test, test_pred)
+
 
 
 

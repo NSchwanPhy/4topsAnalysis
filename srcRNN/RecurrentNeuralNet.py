@@ -13,9 +13,15 @@ from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.regularizers import l2, l1
 from tensorflow.keras import backend as K
 
+import tensorflow as tf
+
+NUM_THREADS=1
+tf.config.threading.set_inter_op_parallelism_threads(NUM_THREADS)
+tf.config.threading.set_intra_op_parallelism_threads(NUM_THREADS)
+
 def Main(ANNSetup,DataSet,BootStrap=('vali',None)):
     np.random.seed(5)
-    train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName)
+    train, test, vali = GetSamples(BootStrap,DataSet,ANNSetup.ModelName,DoTrafo=True)
     GuardRNN(ANNSetup)
     if(ANNSetup.Architecture == 'LSTM'):
         return LSTMNN(ANNSetup, test, train, DataSet.LVariables)
@@ -62,7 +68,7 @@ def LSTMNN(ANNSetup, test, train, VarList):
 
     model.summary()
     model.compile(optimizer=Opti, loss='binary_crossentropy', metrics=['accuracy'])
-    history = model.fit(train.Events, train.OutTrue, sample_weight=TrainWeights, validation_data=(test.Events, test.OutTrue, test.Weights), nb_epoch=int(ANNSetup.Epochs),
+    history = model.fit(train.Events, train.OutTrue, sample_weight=TrainWeights, validation_data=(test.Events, test.OutTrue, test.Weights), epochs=int(ANNSetup.Epochs),
                         batch_size=int(ANNSetup.Batch), verbose=2, callbacks=Lcallbacks)
 
     LAuc = Roc.TestAucs

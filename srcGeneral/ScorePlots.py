@@ -1,6 +1,6 @@
 import ROOT
 import numpy as np
-from sklearn.metrics import roc_auc_score
+from Utils import roc_auc_score
 from root_numpy import fill_hist
 
 
